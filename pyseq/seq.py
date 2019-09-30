@@ -1,4 +1,3 @@
-import collections
 import functools
 import itertools
 import operator
@@ -33,12 +32,20 @@ def _adjust_selectors(key_selector, value_selector):
     return key_selector, value_selector
 
 
+def _create_func(*funcs):
+    if not funcs:
+        return identity
+    if all(isinstance(item, str) for item in funcs):
+        return operator.attrgetter(*funcs)
+    elif all(isinstance(item, int) for item in funcs):
+        return operator.itemgetter(*funcs)
+    elif callable(funcs[0]):
+        return funcs[0]
+
+
 class Seq:
     def __init__(self, iterable):
         self._iterable = iterable._iterable if isinstance(iterable, Seq) else iterable
-
-    def __bool__(self):
-        raise NotImplementedError()
 
     def __iter__(self):
         return iter(self._iterable)
@@ -70,17 +77,23 @@ class Seq:
     def repeat(value, count):
         return itertools.repeat(value, count)
 
+    @staticmethod
     @as_seq
-    def map(self, func):
-        return map(func, self._iterable)
+    def once(value):
+        if value is not None:
+            yield value
 
     @as_seq
-    def map_attr(self, *attrs):
-        return self.map(operator.attrgetter(*attrs))
+    def map(self, *funcs):
+        return map(_create_func(*funcs), self._iterable)
 
     @as_seq
-    def map_item(self, *items):
-        return self.map(operator.itemgetter(*items))
+    def replace_if(self, pred, new_value):
+        return self.map(lambda item: new_value if pred(item) else item)
+
+    @as_seq
+    def replace(self, old_value, new_value):
+        return self.replace_if(lambda item: item == old_value, new_value)
 
     @as_seq
     def filter(self, pred):
@@ -95,8 +108,13 @@ class Seq:
         return self.filter(negate(pred))
 
     @as_seq
+    def tee(self, count):
+        return Seq(itertools.tee(self._iterable, count)).map(Seq)
+
+    @as_seq
     def partition(self, pred):
-        return self.take_if(pred), self.drop_if(pred)
+        t, d = self.tee(2)
+        return Seq(t).take_if(pred), Seq(d).drop_if(pred)
 
     @as_seq
     def take_while(self, pred):
@@ -127,10 +145,6 @@ class Seq:
         return itertools.islice(self._iterable, *args)
 
     @as_seq
-    def tail(self, count):
-        return iter(collections.deque(self._iterable, maxlen=count))
-
-    @as_seq
     def enumerate(self, start=0):
         return enumerate(self._iterable, start=start)
 
@@ -144,17 +158,22 @@ class Seq:
         return reversed(self._iterable)
 
     @as_seq
-    def sort(self, key=None, reverse=False):
-        return sorted(self._iterable, key=key, reverse=reverse)
+    def sort(self, *funcs):
+        return sorted(self._iterable, key=_create_func(*funcs))
 
     @as_seq
-    def group_by(self, key=None):
-        for k, v in itertools.groupby(self._iterable, key=key):
+    def sort_desc(self, *funcs):
+        return sorted(self._iterable, key=_create_func(*funcs), reverse=True)
+
+    @as_seq
+    def group_by(self, *funcs):
+        for k, v in itertools.groupby(self._iterable, key=_create_func(*funcs)):
             yield k, Seq(v)
 
     @as_seq
-    def sort_and_group_by(self, key=None):
-        return self.sort(key).group_by(key)
+    def group_by_sorted(self, *funcs):
+        f = _create_func(*funcs)
+        return self.sort(f).group_by(f)
 
     @as_seq
     def zip_with(self, other_iterable):
@@ -185,19 +204,16 @@ class Seq:
         return itertools.chain.from_iterable(self._iterable)
 
     @as_seq
-    def flat_map(self, func):
-        return self.map(func).flatten()
+    def flat_map(self, *funcs):
+        return self.map(*funcs).flatten()
 
     def all(self, pred=None):
-        pred = pred if pred is not None else bool
-        return all(self.map(pred))
+        return all(self.map(pred if pred is not None else bool))
 
     def any(self, pred=None):
-        pred = pred if pred is not None else bool
-        return any(self.map(pred))
+        return any(self.map(pred if pred is not None else bool))
 
     def none(self, pred=None):
-        pred = pred if pred is not None else bool
         return not self.any(pred)
 
     def for_each(self, func):
@@ -237,22 +253,16 @@ class Seq:
         return res
 
     def reduce(self, func, init=None):
-        init = init if init is not None else 0
-        return functools.reduce(func, self._iterable, init)
+        return functools.reduce(func, self._iterable, init if init is not None else 0)
 
     def sum(self, init=None):
         return self.reduce(operator.add, init)
 
-    def min(self, key=None):
-        key = key if key is not None else identity
-        return min(self._iterable, key=key)
+    def min(self, *funcs):
+        return min(self._iterable, key=_create_func(*funcs))
 
-    def max(self, key=None):
-        key = key if key is not None else identity
-        return max(self._iterable, key=key)
-
-    def min_max(self, key=None):
-        return self.min(key), self.max(key)
+    def max(self, *funcs):
+        return max(self._iterable, key=_create_func(*funcs))
 
     def first_or(self, def_value):
         return next(iter(self._iterable), def_value)
@@ -261,17 +271,18 @@ class Seq:
         return self.first_or(None)
 
     def first_or_eval(self, func):
-        res = self.first_or_none()
-        return res if res is not None else func()
+        def_value = object()
+        res = self.first_or(def_value)
+        return res if res is not def_value else func()
 
     def first_or_throw(self, message):
-        res = self.first_or_none()
-        if res is None:
+        def handler():
             if isinstance(message, Exception):
                 raise message
             else:
                 raise IndexError(str(message))
-        return res
+
+        return self.first_or_eval(handler)
 
     def first(self):
-        return self.first_or_throw('empty range')
+        return self.first_or_throw('empty sequence')
