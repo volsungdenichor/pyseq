@@ -33,6 +33,7 @@ def test_seq():
     assert Seq.range(3).all(lambda x: x < 10)
     assert Seq.range(3).any(lambda x: x < 10)
     assert not Seq.range(3).none(lambda x: x < 10)
+    assert Seq.range(3).count() == 3
     assert Seq.range(3).join() == '012'
     assert Seq.range(1, 101).sum() == 5050
     assert Seq([5, 3, -1, -2]).min(lambda x: abs(x)) == -1

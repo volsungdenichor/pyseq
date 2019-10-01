@@ -1,18 +1,32 @@
 class Predicate:
     def __init__(self, pred):
-        self._pred = pred
+        self._pred = pred._pred if isinstance(pred, Predicate) else pred
 
-    def __call__(self, item):
-        return self._pred(item)
+    def __call__(self, *args, **kwargs):
+        return self._pred(*args, **kwargs)
 
     def __and__(self, other):
-        return Predicate(lambda item: self(item) and other(item))
+        def pred(*args, **kwargs):
+            return self(*args, **kwargs) and other(*args, **kwargs)
+
+        return Predicate(pred)
 
     def __or__(self, other):
-        return Predicate(lambda item: self(item) or other(item))
+        def pred(*args, **kwargs):
+            return self(*args, **kwargs) or other(*args, **kwargs)
+
+        return Predicate(pred)
 
     def __invert__(self):
-        return Predicate(lambda item: not self(item))
+        def pred(*args, **kwargs):
+            return not self(*args, **kwargs)
+
+        return Predicate(pred)
+
+    def __str__(self):
+        return str(self._pred)
+
+    __repr__ = __str__
 
 
 def as_predicate(func):
@@ -34,79 +48,97 @@ def never():
 
 @as_predicate
 def eq(value):
-    return lambda item: item == value
+    return lambda arg: arg == value
 
 
 @as_predicate
 def ne(value):
-    return lambda item: item != value
+    return lambda arg: arg != value
 
 
 @as_predicate
 def lt(value):
-    return lambda item: item < value
+    return lambda arg: arg < value
 
 
 @as_predicate
 def le(value):
-    return lambda item: item <= value
+    return lambda arg: arg <= value
 
 
 @as_predicate
 def gt(value):
-    return lambda item: item > value
+    return lambda arg: arg > value
 
 
 @as_predicate
 def ge(value):
-    return lambda item: item >= value
+    return lambda arg: arg >= value
+
+
+equal = eq
+not_equal = ne
+less = lt
+less_equal = le
+greater = gt
+greater_equal = ge
 
 
 @as_predicate
 def between(lo, up):
-    return lambda item: lo <= item < up
+    return lambda arg: lo <= arg < up
 
 
 @as_predicate
 def divisible_by(d):
-    return lambda item: item % d == 0
+    return lambda arg: arg % d == 0
 
 
 @as_predicate
 def even():
-    return lambda item: item % 2 == 0
+    return lambda arg: arg % 2 == 0
 
 
 @as_predicate
 def odd():
-    return lambda item: item % 2 == 1
+    return lambda arg: arg % 2 == 1
 
 
 @as_predicate
 def any_of(*args):
-    return lambda item: item in args
+    return lambda arg: arg in args
 
 
 @as_predicate
 def none():
-    return lambda item: item is None
+    return lambda arg: arg is None
 
 
 @as_predicate
 def not_none():
-    return lambda item: item is not None
+    return lambda arg: arg is not None
 
 
 @as_predicate
-def is_true():
-    return lambda item: bool(item)
+def empty():
+    return lambda arg: len(arg) == 0
 
 
 @as_predicate
-def is_false():
-    return lambda item: not bool(item)
+def not_empty():
+    return lambda arg: len(arg) > 0
+
+
+@as_predicate
+def true():
+    return lambda arg: bool(arg)
+
+
+@as_predicate
+def false():
+    return lambda arg: not bool(arg)
 
 
 @as_predicate
 def of_type(t):
-    return lambda item: isinstance(item, t)
+    return lambda arg: isinstance(arg, t)

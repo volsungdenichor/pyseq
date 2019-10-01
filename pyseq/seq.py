@@ -114,7 +114,7 @@ class Seq:
     @as_seq
     def partition(self, pred):
         t, d = self.tee(2)
-        return Seq(t).take_if(pred), Seq(d).drop_if(pred)
+        return t.take_if(pred), d.drop_if(pred)
 
     @as_seq
     def take_while(self, pred):
@@ -206,6 +206,9 @@ class Seq:
     @as_seq
     def flat_map(self, *funcs):
         return self.map(*funcs).flatten()
+
+    def count(self):
+        return sum(1 for _ in self._iterable)
 
     def all(self, pred=None):
         return all(self.map(pred if pred is not None else bool))
