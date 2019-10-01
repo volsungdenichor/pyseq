@@ -1,3 +1,6 @@
+import re
+
+
 class Predicate:
     def __init__(self, pred):
         self._pred = pred._pred if isinstance(pred, Predicate) else pred
@@ -120,13 +123,20 @@ def not_none():
 
 
 @as_predicate
+def has_len(pred):
+    if isinstance(pred, int):
+        pred = equal(pred)
+    return lambda arg: pred(len(arg))
+
+
+@as_predicate
 def empty():
-    return lambda arg: len(arg) == 0
+    return has_len(equal(0))
 
 
 @as_predicate
 def not_empty():
-    return lambda arg: len(arg) > 0
+    return has_len(greater(0))
 
 
 @as_predicate
@@ -140,5 +150,41 @@ def false():
 
 
 @as_predicate
-def of_type(t):
-    return lambda arg: isinstance(arg, t)
+def of_type(*types):
+    return lambda arg: isinstance(arg, tuple(types))
+
+
+@as_predicate
+def has_prefix(prefix):
+    return lambda arg: arg[:len(prefix)] == prefix
+
+
+@as_predicate
+def has_suffix(suffix):
+    return lambda arg: arg[-len(suffix):] == suffix
+
+
+@as_predicate
+def has_sub(sub):
+    return lambda arg: any(arg[i:i + len(sub)] == sub for i in range(len(arg)))
+
+
+@as_predicate
+def matches_re(pattern):
+    r = re.compile(pattern)
+    return lambda arg: r.match(arg)
+
+
+@as_predicate
+def contains_all(*values):
+    return lambda arg: all(v in arg for v in values)
+
+
+@as_predicate
+def contains_any(*values):
+    return lambda arg: any(v in arg for v in values)
+
+
+@as_predicate
+def contains_none(*values):
+    return lambda arg: not any(v in arg for v in values)
