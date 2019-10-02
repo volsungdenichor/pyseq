@@ -9,6 +9,9 @@ def _test_pred(pred, pos, neg):
 
 
 def test_predicates():
+    _test_pred(equal(7) | equal(2), [7, 2], [1, 3, 8])
+    _test_pred(greater(3) & less(6), [4, 5], [1, 3, 8])
+    _test_pred(~equal(3), [2, 4, 5], [3])
     _test_pred(equal(7), [7], [1, 2, 3, 8])
     _test_pred(not_equal(7), [1, 2, 3, 8], [7])
     _test_pred(less(7), [1, 2, 3], [7, 8, 9, 10])

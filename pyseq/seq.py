@@ -50,6 +50,9 @@ class Seq:
     def __iter__(self):
         return iter(self._iterable)
 
+    def __len__(self):
+        return len(self._iterable)
+
     def __getitem__(self, item):
         if isinstance(item, slice):
             return Seq(self.slice(item.start, item.stop, item.step))
@@ -66,6 +69,11 @@ class Seq:
     @as_seq
     def range(*args):
         return range(*args)
+
+    @staticmethod
+    @as_seq
+    def count(start=0, step=1):
+        return itertools.count(start, step)
 
     @staticmethod
     @as_seq
@@ -206,9 +214,6 @@ class Seq:
     @as_seq
     def flat_map(self, *funcs):
         return self.map(*funcs).flatten()
-
-    def count(self):
-        return sum(1 for _ in self._iterable)
 
     def all(self, pred=None):
         return all(self.map(pred if pred is not None else bool))
