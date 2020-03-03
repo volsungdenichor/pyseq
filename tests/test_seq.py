@@ -22,6 +22,7 @@ def test_seq():
     assert Seq.range(5).reverse().to_list() == [4, 3, 2, 1, 0]
     assert Seq([9, 3, 2, 8]).sort().to_list() == [2, 3, 8, 9]
     assert Seq([9, 3, 2, 8]).sort_desc().to_list() == [9, 8, 3, 2]
+    assert Seq([5, 1, 2, 1, 3, 1, 4]).unique().to_list() == [5, 1, 2, 3, 4]
     assert Seq.range(4).zip_with([9, 8, 7, 6, 5]).to_list() == [(0, 9), (1, 8), (2, 7), (3, 6)]
     assert Seq.range(4).chain([-2, -1]).to_list() == [0, 1, 2, 3, -2, -1]
     assert Seq(['Alpha', 'Beta', 'Gamma']).flatten().to_str() == 'AlphaBetaGamma'

@@ -130,6 +130,15 @@ class Seq:
         return sorted(self._iterable, key=key, reverse=True)
 
     @as_seq
+    def unique(self):
+        visited = set()
+        for item in self._iterable:
+            if item not in visited:
+                visited.add(item)
+                yield item
+
+
+    @as_seq
     def zip_with(self, other_iterable):
         return Seq.zip(self._iterable, other_iterable)
 
