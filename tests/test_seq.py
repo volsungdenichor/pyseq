@@ -42,3 +42,9 @@ def test_seq():
     assert Seq.range(10).to_dict(lambda x: x % 2) == {0: 8, 1: 9}
     assert Seq.range(10).to_multidict(lambda x: x % 2) == {0: [0, 2, 4, 6, 8], 1: [1, 3, 5, 7, 9]}
     assert Seq.zip([1, 2, 3, 4], ['a', 'b', 'c', 'd']).to_dict() == {1: 'a', 2: 'b', 3: 'c', 4: 'd'}
+    assert Seq([1, 2, 3, 4]).min() == 1
+    assert Seq([0, 1, 2, 3, 4]).min(lambda x: abs(x - 3)) == 3
+    assert Seq([1, 2, 3, 4]).max() == 4
+    assert Seq([0, 1, 2, 3, 4]).max(lambda x: abs(x - 3)) == 0
+    assert Seq([0, 1, 2, 3, 4]).minmax() == (0, 4)
+    assert Seq([0, 1, 2, 3, 4]).minmax(lambda x: abs(x - 3)) == (3, 0)

@@ -23,6 +23,10 @@ def negate(func):
     return result
 
 
+def _if_none(value, other):
+    return value if value is not None else other
+
+
 def _adjust_selectors(key_selector, value_selector):
     if key_selector is None and value_selector is None:
         return operator.itemgetter(0), operator.itemgetter(1)
@@ -137,7 +141,6 @@ class Seq:
                 visited.add(item)
                 yield item
 
-
     @as_seq
     def zip_with(self, other_iterable):
         return Seq.zip(self._iterable, other_iterable)
@@ -154,11 +157,15 @@ class Seq:
     def flat_map(self, func):
         return self.map(func).flatten()
 
+    def tee(self):
+        it1, it2 = itertools.tee(self._iterable)
+        return Seq(it1), Seq(it2)
+
     def all(self, pred=None):
-        return all(self.map(pred if pred is not None else bool))
+        return all(self.map(_if_none(pred, bool)))
 
     def any(self, pred=None):
-        return any(self.map(pred if pred is not None else bool))
+        return any(self.map(_if_none(pred, bool)))
 
     def none(self, pred=None):
         return not self.any(pred)
@@ -203,7 +210,17 @@ class Seq:
         return functools.reduce(func, self._iterable, init)
 
     def sum(self, init=None):
-        return self.reduce(operator.add, init if init is not None else 0)
+        return self.reduce(operator.add, _if_none(init, 0))
+
+    def min(self, key=None):
+        return min(self._iterable, key=_if_none(key, identity))
+
+    def max(self, key=None):
+        return max(self._iterable, key=_if_none(key, identity))
+
+    def minmax(self, key=None):
+        s1, s2 = self.tee()
+        return s1.min(key), s2.max(key)
 
     def first(self):
         return Opt.of_nullable(next(iter(self._iterable), None))

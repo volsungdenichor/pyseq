@@ -25,3 +25,7 @@ def test_opt():
     assert Opt.none().filter(lambda x: x > 2) == Opt.none()
     assert Opt.of(4).flat_map(square_root) == Opt.of(2)
     assert Opt.of(-4).flat_map(square_root) == Opt.none()
+    assert Opt.of(2) | Opt.of(4) == Opt.of(2)
+    assert Opt.none() | Opt.of(4) == Opt.of(4)
+    assert Opt.of(2) & Opt.of(4) == Opt.of(4)
+    assert Opt.of(4) & Opt.of(2) == Opt.of(2)

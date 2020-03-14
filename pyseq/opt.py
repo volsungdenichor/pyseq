@@ -70,6 +70,12 @@ class Opt:
         else:
             return Opt.none()
 
+    def __or__(self, other):
+        return self if self.has_value() else other
+
+    def __and__(self, other):
+        return self if not self.has_value() else other
+
     def __eq__(self, other):
         if isinstance(other, Opt):
             return self._value == other._value
