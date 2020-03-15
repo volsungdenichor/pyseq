@@ -23,6 +23,15 @@ class Opt:
         return Opt(value)
 
     @staticmethod
+    def eval(func):
+        try:
+            return Opt.of_nullable(func())
+        except:
+            return Opt.none()
+
+    some = of
+
+    @staticmethod
     def none():
         return Opt(None)
 

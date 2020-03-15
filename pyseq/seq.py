@@ -213,14 +213,10 @@ class Seq:
         return self.reduce(operator.add, _if_none(init, 0))
 
     def min(self, key=None):
-        return min(self._iterable, key=_if_none(key, identity))
+        return Opt.eval(lambda: min(self._iterable, key=_if_none(key, identity)))
 
     def max(self, key=None):
-        return max(self._iterable, key=_if_none(key, identity))
-
-    def minmax(self, key=None):
-        s1, s2 = self.tee()
-        return s1.min(key), s2.max(key)
+        return Opt.eval(lambda: max(self._iterable, key=_if_none(key, identity)))
 
     def first(self):
         return Opt.of_nullable(next(iter(self._iterable), None))
