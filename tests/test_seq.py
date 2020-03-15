@@ -47,3 +47,5 @@ def test_seq():
     assert Seq([1, 2, 3, 4]).max() == Opt.some(4)
     assert Seq([0, 1, 2, 3, 4]).max(lambda x: abs(x - 3)) == Opt.some(0)
     assert Seq([]).max() == Opt.none()
+    assert Seq([8, 9, 10, 11, 12]).find(lambda x: x > 10) == Opt.some(11)
+    assert Seq([8, 9, 10, 11, 12]).find(lambda x: x > 100) == Opt.none()
