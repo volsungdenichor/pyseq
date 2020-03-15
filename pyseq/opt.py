@@ -90,3 +90,7 @@ class Opt:
             return self._value == other._value
         else:
             return self._value == other
+
+
+def try_get(dct, key):
+    return Opt.of_nullable(dct.get(key))

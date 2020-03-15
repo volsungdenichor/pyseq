@@ -223,3 +223,6 @@ class Seq:
 
     def nth(self, index):
         return self.drop(index).first()
+
+    def find(self, pred):
+        return self.drop_until(pred).first()

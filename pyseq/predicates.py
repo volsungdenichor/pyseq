@@ -10,31 +10,31 @@ class Predicate:
         return self._pred(*args, **kwargs)
 
     def __and__(self, other):
-        return self._binary(operator.and_, other)
+        def pred(*args, **kwargs):
+            return self(*args, **kwargs) and other(*args, **kwargs)
+
+        return Predicate(pred)
 
     def __or__(self, other):
-        return self._binary(operator.or_, other)
+        def pred(*args, **kwargs):
+            return self(*args, **kwargs) or other(*args, **kwargs)
+
+        return Predicate(pred)
 
     def __xor__(self, other):
-        return self._binary(operator.xor, other)
+        def pred(*args, **kwargs):
+            return self(*args, **kwargs) ^ other(*args, **kwargs)
+
+        return Predicate(pred)
 
     def __invert__(self):
-        return self._unary(operator.not_)
+        def pred(*args, **kwargs):
+            return not self(*args, **kwargs)
+
+        return Predicate(pred)
 
     def __str__(self):
         return str(self._pred)
-
-    def _binary(self, op, other):
-        def pred(*args, **kwargs):
-            return op(self(*args, **kwargs), other(*args, **kwargs))
-
-        return Predicate(pred)
-
-    def _unary(self, op):
-        def pred(*args, **kwargs):
-            return op(self(*args, **kwargs))
-
-        return Predicate(pred)
 
     __repr__ = __str__
 
