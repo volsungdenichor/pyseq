@@ -147,6 +147,14 @@ class Seq:
     def flat_map(self, func):
         return self.map(func).flatten()
 
+    @as_seq
+    def filter_map(self, func):
+        for item in self._iterable:
+            res = func(item)
+            assert isinstance(res, Opt)
+            if res.has_value():
+                yield res.value()
+
     def tee(self):
         it1, it2 = itertools.tee(self._iterable)
         return Seq(it1), Seq(it2)
@@ -163,6 +171,12 @@ class Seq:
     def for_each(self, func):
         for item in self._iterable:
             func(item)
+
+    @as_seq
+    def inspect(self, func):
+        for item in self._iterable:
+            func(item)
+            yield item
 
     def join(self, separator=''):
         return separator.join(self.map(str))

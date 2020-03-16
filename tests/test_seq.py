@@ -1,3 +1,4 @@
+from pyseq.functions import identity
 from pyseq.opt import Opt
 from pyseq.seq import Seq
 
@@ -49,3 +50,5 @@ def test_seq():
     assert Seq([]).max() == Opt.none()
     assert Seq([8, 9, 10, 11, 12]).find(lambda x: x > 10) == Opt.some(11)
     assert Seq([8, 9, 10, 11, 12]).find(lambda x: x > 100) == Opt.none()
+    assert Seq([0, None, 1, None, 2, None]).filter_map(Opt.of_nullable).to_list() == [0, 1, 2]
+    assert Seq([Opt.some(1), Opt.none(), Opt.some(2), Opt.none()]).filter_map(identity).to_list() == [1, 2]

@@ -7,7 +7,7 @@ class Opt:
         self._value = value
 
     def __str__(self):
-        return str(self._value) if self else '{none}'
+        return f'some({self._value})' if self else 'none'
 
     __repr__ = __str__
 
