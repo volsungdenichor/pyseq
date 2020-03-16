@@ -27,3 +27,15 @@ def invoke_on_key(func):
 
 def invoke_on_value(func):
     return compose(get_value, func)
+
+
+def with_input(func):
+    return lambda arg: (arg, func(arg))
+
+
+def replace_if(pred, new_value):
+    return lambda arg: new_value if pred(arg) else arg
+
+
+def replace(old_value, new_value):
+    return lambda arg: new_value if arg == old_value else arg
