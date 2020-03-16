@@ -2,6 +2,7 @@ import functools
 import itertools
 import operator
 
+from pyseq.functions import identity, negate
 from pyseq.opt import Opt
 
 
@@ -10,17 +11,6 @@ def as_seq(func):
         return Seq(func(*args, **kwargs))
 
     return wrapper
-
-
-def identity(x):
-    return x
-
-
-def negate(func):
-    def result(*args, **kwargs):
-        return not func(*args, **kwargs)
-
-    return result
 
 
 def _if_none(value, other):

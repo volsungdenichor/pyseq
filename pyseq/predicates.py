@@ -1,4 +1,3 @@
-import operator
 import re
 
 
@@ -46,14 +45,8 @@ def as_predicate(func):
     return wrapper
 
 
-@as_predicate
-def always():
-    return lambda _: True
-
-
-@as_predicate
-def never():
-    return lambda _: False
+always = Predicate(lambda _: True)
+never = ~always
 
 
 @as_predicate
@@ -104,14 +97,8 @@ def divisible_by(d):
     return lambda arg: arg % d == 0
 
 
-@as_predicate
-def even():
-    return lambda arg: arg % 2 == 0
-
-
-@as_predicate
-def odd():
-    return lambda arg: arg % 2 == 1
+even = Predicate(lambda arg: arg % 2 == 0)
+odd = ~even
 
 
 @as_predicate
@@ -119,14 +106,8 @@ def any_of(*args):
     return lambda arg: arg in args
 
 
-@as_predicate
-def none():
-    return lambda arg: arg is None
-
-
-@as_predicate
-def not_none():
-    return lambda arg: arg is not None
+none = Predicate(lambda arg: arg is None)
+not_none = ~none
 
 
 @as_predicate
@@ -136,24 +117,11 @@ def has_len(pred):
     return lambda arg: pred(len(arg))
 
 
-@as_predicate
-def empty():
-    return has_len(equal(0))
+empty = has_len(equal(0))
+not_empty = ~empty
 
-
-@as_predicate
-def not_empty():
-    return has_len(greater(0))
-
-
-@as_predicate
-def true():
-    return lambda arg: bool(arg)
-
-
-@as_predicate
-def false():
-    return lambda arg: not bool(arg)
+true = Predicate(bool)
+false = ~true
 
 
 @as_predicate
