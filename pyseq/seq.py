@@ -155,6 +155,17 @@ class Seq:
             if res.has_value():
                 yield res.value()
 
+    @as_seq
+    def chunk(self, chunk_size):
+        buffer = []
+        for item in self._iterable:
+            buffer.append(item)
+            if len(buffer) == chunk_size:
+                yield buffer
+                buffer = []
+        if buffer:
+            yield buffer
+
     def tee(self):
         it1, it2 = itertools.tee(self._iterable)
         return Seq(it1), Seq(it2)
