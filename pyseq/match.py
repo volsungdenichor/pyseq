@@ -14,9 +14,7 @@ def _try_invoke(func, item):
 
 
 def _convert_pred(pred):
-    if _is_type(pred) or (isinstance(pred, tuple) and all(_is_type(t) for t in pred)):
-        return lambda item: isinstance(item, pred)
-    elif callable(pred):
+    if callable(pred):
         return pred
     else:
         return lambda item: item == pred
@@ -48,6 +46,9 @@ class _When:
     def then(self, func):
         return _Handler(self._pred, func)
 
+    def __rshift__(self, other):
+        return self.then(other)
+
 
 def _validate_handlers(*handlers):
     assert all(isinstance(x, _Handler) for x in handlers)
@@ -57,8 +58,7 @@ def when(pred):
     return _When(pred)
 
 
-def otherwise(func):
-    return _Handler(lambda: True, func)
+__ = lambda *args, **kwargs: True
 
 
 def match(item, *handlers):
