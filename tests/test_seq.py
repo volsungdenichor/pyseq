@@ -57,3 +57,4 @@ def test_seq():
     _test_seq(Seq([0, None, 1, None, 2, None]).filter_map(Opt.of_nullable), [0, 1, 2])
     _test_seq(Seq([Opt.some(1), Opt.none(), Opt.some(2), Opt.none()]).filter_map(identity), [1, 2])
     _test_seq(Seq.range(8).map(lambda x: x ** 2).chunk(3), [[0, 1, 4], [9, 16, 25], [36, 49]])
+    assert Seq.range(10).take_if(lambda x: x % 3 == 0).len() == 4
