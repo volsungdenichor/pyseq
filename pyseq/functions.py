@@ -1,6 +1,8 @@
 import functools
 from operator import itemgetter
 
+from pyseq.core import ensure
+
 
 def identity(x):
     return x
@@ -39,3 +41,10 @@ def replace_if(pred, new_value):
 
 def replace(old_value, new_value):
     return lambda arg: new_value if arg == old_value else arg
+
+
+def raise_error(error):
+    def result(*args, **kwargs):
+        ensure(False, error)
+
+    return result
