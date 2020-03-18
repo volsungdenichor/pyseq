@@ -84,3 +84,9 @@ def test_predicates():
     _test_pred(true,
                pos=[1, "A", [3]],
                neg=[0, "", None])
+    _test_pred(value_of('name', has_prefix('Z')),
+               pos=[{'name': 'Zenon'}, {'name': 'Zofia'}],
+               neg=[{}, {'first_name': 'Zenon'}, {'name': 'Aldona'}])
+    _test_pred(value_of('count', 3),
+               pos=[{'count': 3}],
+               neg=[{}])

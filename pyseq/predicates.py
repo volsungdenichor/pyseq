@@ -3,34 +3,36 @@ import re
 
 class Predicate:
     def __init__(self, pred):
-        self._pred = pred._pred if isinstance(pred, Predicate) else pred
+        self._pred = pred._pred if isinstance(pred, Predicate) \
+            else pred if callable(pred) \
+            else lambda arg: arg == pred
 
-    def __call__(self, *args, **kwargs):
-        return self._pred(*args, **kwargs)
+    def __call__(self, item):
+        return self._pred(item)
 
     def __and__(self, other):
-        def pred(*args, **kwargs):
-            return self(*args, **kwargs) and other(*args, **kwargs)
+        def result(item):
+            return self(item) and other(item)
 
-        return Predicate(pred)
+        return Predicate(result)
 
     def __or__(self, other):
-        def pred(*args, **kwargs):
-            return self(*args, **kwargs) or other(*args, **kwargs)
+        def result(item):
+            return self(item) or other(item)
 
-        return Predicate(pred)
+        return Predicate(result)
 
     def __xor__(self, other):
-        def pred(*args, **kwargs):
-            return self(*args, **kwargs) ^ other(*args, **kwargs)
+        def result(item):
+            return self(item) ^ other(item)
 
-        return Predicate(pred)
+        return Predicate(result)
 
     def __invert__(self):
-        def pred(*args, **kwargs):
-            return not self(*args, **kwargs)
+        def result(item):
+            return not self(item)
 
-        return Predicate(pred)
+        return Predicate(result)
 
     def __str__(self):
         return str(self._pred)
@@ -112,8 +114,7 @@ not_none = ~none
 
 @as_predicate
 def has_len(pred):
-    if isinstance(pred, int):
-        pred = equal(pred)
+    pred = Predicate(pred)
     return lambda arg: pred(len(arg))
 
 
@@ -168,3 +169,9 @@ def contains_any(*values):
 @as_predicate
 def contains_none(*values):
     return lambda arg: not any(contains(v)(arg) for v in values)
+
+
+@as_predicate
+def value_of(key, pred):
+    pred = Predicate(pred)
+    return lambda arg: key in arg and pred(arg[key])
