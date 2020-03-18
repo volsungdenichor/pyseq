@@ -151,15 +151,20 @@ def matches_re(pattern):
 
 
 @as_predicate
+def contains(value):
+    return lambda arg: value in arg
+
+
+@as_predicate
 def contains_all(*values):
-    return lambda arg: all(v in arg for v in values)
+    return lambda arg: all(contains(v)(arg) for v in values)
 
 
 @as_predicate
 def contains_any(*values):
-    return lambda arg: any(v in arg for v in values)
+    return lambda arg: any(contains(v)(arg) for v in values)
 
 
 @as_predicate
 def contains_none(*values):
-    return lambda arg: not any(v in arg for v in values)
+    return lambda arg: not any(contains(v)(arg) for v in values)

@@ -60,6 +60,15 @@ def test_predicates():
     _test_pred(contains_all('a', 'b'),
                pos=[{'a': 1, 'b': 2}],
                neg=[])
+    _test_pred(contains_none(1, 2),
+               pos=[[3, 4]],
+               neg=[[1], [2], [1, 2]])
+    _test_pred(contains_any(1, 2),
+               pos=[[1], [2], [1, 2], [1, 3, 4]],
+               neg=[[], [3, 4]])
+    _test_pred(contains(5),
+               pos=[[5], [1, 2, 3, 5]],
+               neg=[[], [1, 2], [3]])
     _test_pred(has_prefix('error'),
                pos=['error'],
                neg=['success'])
