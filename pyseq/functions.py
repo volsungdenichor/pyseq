@@ -2,6 +2,7 @@ import functools
 from operator import itemgetter
 
 from pyseq.core import ensure
+from pyseq.opt import Opt
 
 
 def identity(x):
@@ -48,3 +49,15 @@ def raise_error(error):
         ensure(False, error)
 
     return result
+
+
+def get_nested(dct, *keys):
+    for key in keys:
+        if dct is None:
+            return Opt.none()
+        dct = dct.get(key)
+    return Opt.of_nullable(dct)
+
+
+def nested_getter(*keys):
+    return lambda dct: get_nested(dct, *keys)

@@ -1,3 +1,6 @@
+from pyseq.core import ensure
+
+
 class OptError(Exception):
     pass
 
@@ -61,21 +64,23 @@ class Opt:
 
     def map(self, func):
         if self:
-            return Opt(func(self._value))
-        else:
-            return Opt.none()
-
-    def filter(self, pred):
-        if self and pred(self._value):
-            return self
+            res = func(self._value)
+            ensure(not isinstance(res, Opt), lambda: 'map: result Opt not expected')
+            return Opt(res)
         else:
             return Opt.none()
 
     def flat_map(self, func):
         if self:
             res = func(self._value)
-            assert isinstance(res, Opt)
-            return Opt(res._value)
+            ensure(isinstance(res, Opt), lambda: 'flat_map result Opt expected')
+            return res
+        else:
+            return Opt.none()
+
+    def filter(self, pred):
+        if self and pred(self._value):
+            return self
         else:
             return Opt.none()
 
@@ -90,7 +95,3 @@ class Opt:
             return self._value == other._value
         else:
             return self._value == other
-
-
-def try_get(dct, key):
-    return Opt.of_nullable(dct.get(key))
