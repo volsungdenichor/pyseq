@@ -52,7 +52,7 @@ def raise_error(error):
 
 
 def get(dct, key):
-    return Opt.of_nullable(dct.get(key))
+    return Opt.some(dct).getitem(key)
 
 
 def getter(key):
@@ -60,12 +60,7 @@ def getter(key):
 
 
 def get_nested(dct, *keys):
-    result = dct
-    for key in keys:
-        if result is None:
-            return Opt.none()
-        result = result.get(key)
-    return Opt.of_nullable(result)
+    return Opt.some(dct).getitem(*keys)
 
 
 def nested_getter(*keys):

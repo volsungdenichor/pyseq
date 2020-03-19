@@ -16,9 +16,7 @@ class Opt:
 
     @staticmethod
     def of(value):
-        if value is None:
-            raise OptError()
-
+        ensure(value is not None, lambda: OptError())
         return Opt(value)
 
     @staticmethod
@@ -82,6 +80,18 @@ class Opt:
             return res
         else:
             return Opt.none()
+
+    def getattr(self, *names):
+        res = self
+        for name in names:
+            res = res.flat_map(lambda v: Opt.of_nullable(getattr(v, name, None)))
+        return res
+
+    def getitem(self, *names):
+        res = self
+        for name in names:
+            res = res.flat_map(lambda v: Opt.of_nullable(v.get(name, None)))
+        return res
 
     def contains(self, value):
         return self and self._value == value
