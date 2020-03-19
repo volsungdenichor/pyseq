@@ -2,7 +2,6 @@ from pyseq.functions import invoke_on_key, invoke_on_value, compose, with_input,
     getter, unpack
 from pyseq.opt import Opt
 from pyseq.predicates import odd
-from pyseq.seq import Seq
 
 
 def _test_func(func, lst):
@@ -35,6 +34,10 @@ def test_functions():
         with_input(lambda x: x ** 2),
         [1, 2, 3, 4]) == [(1, 1), (2, 4), (3, 9), (4, 16)]
 
+    assert _test_func(unpack(
+        lambda k, v: f'{v}_{k * 11}'),
+        dct.items()) == ['X_22', 'Y_33']
+
 
 def test_getter():
     def _test(dct):
@@ -56,14 +59,3 @@ def test_nested_getter():
     assert _test({'name': {'first': 'Adam'}}) == Opt.some('Adam')
     assert _test({'name': {'first': None}}) == Opt.none()
     assert _test({'name': {}}) == Opt.none()
-
-
-def test_unpack():
-    dct = {'A': 1, 'B': 2, 'C': 3}
-
-    res = Seq(dct.items()) \
-        .filter(unpack(lambda k, v: k != 'B')) \
-        .map(unpack(lambda k, v: f'{k}_{v + 1}')) \
-        .to_list()
-
-    assert res == ['A_2', 'C_4']
