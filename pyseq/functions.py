@@ -51,12 +51,21 @@ def raise_error(error):
     return result
 
 
+def get(dct, key):
+    return Opt.of_nullable(dct.get(key))
+
+
+def getter(key):
+    return lambda dct: get(dct, key)
+
+
 def get_nested(dct, *keys):
+    result = dct
     for key in keys:
-        if dct is None:
+        if result is None:
             return Opt.none()
-        dct = dct.get(key)
-    return Opt.of_nullable(dct)
+        result = result.get(key)
+    return Opt.of_nullable(result)
 
 
 def nested_getter(*keys):
