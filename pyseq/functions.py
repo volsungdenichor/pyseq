@@ -65,3 +65,10 @@ def get_nested(dct, *keys):
 
 def nested_getter(*keys):
     return lambda dct: get_nested(dct, *keys)
+
+
+def invoke_on_tuple(func):
+    return lambda arg: func(*arg)
+
+
+unpack = invoke_on_tuple
