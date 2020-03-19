@@ -53,6 +53,9 @@ class Opt:
             else:
                 raise exception
 
+    def value_or_none(self):
+        return self.value_or(None)
+
     def value(self):
         return self.value_or_raise('empty optional')
 
@@ -78,8 +81,14 @@ class Opt:
         else:
             return Opt.none()
 
+    def contains(self, value):
+        return self and self._value == value
+
+    def exists(self, pred):
+        return self and pred(self._value)
+
     def filter(self, pred):
-        if self and pred(self._value):
+        if self.exists(pred):
             return self
         else:
             return Opt.none()
