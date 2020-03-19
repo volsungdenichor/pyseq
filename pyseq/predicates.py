@@ -157,6 +157,11 @@ def contains(value):
 
 
 @as_predicate
+def inside(value):
+    return lambda arg: arg in value
+
+
+@as_predicate
 def contains_all(*values):
     return lambda arg: all(contains(v)(arg) for v in values)
 
@@ -169,9 +174,3 @@ def contains_any(*values):
 @as_predicate
 def contains_none(*values):
     return lambda arg: not any(contains(v)(arg) for v in values)
-
-
-@as_predicate
-def value_of(key, pred):
-    pred = Predicate(pred)
-    return lambda arg: key in arg and pred(arg[key])
