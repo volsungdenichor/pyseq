@@ -23,6 +23,8 @@ class Opt:
 
     @staticmethod
     def of_nullable(value):
+        if isinstance(value, Opt):
+            return Opt(value._value)
         return Opt(value)
 
     @staticmethod
