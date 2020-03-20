@@ -138,12 +138,30 @@ class Seq:
                 yield item
 
     @as_seq
+    def union(self, other_iterable):
+        return self.to_set().union(other_iterable)
+
+    @as_seq
+    def intersection(self, other_iterable):
+        return self.to_set().intersection(other_iterable)
+
+    @as_seq
+    def difference(self, other_iterable):
+        return self.to_set().difference(other_iterable)
+
+    @as_seq
     def zip_with(self, other_iterable):
         return Seq.zip(self._iterable, other_iterable)
 
     @as_seq
     def chain(self, other_iterable):
         return itertools.chain(self._iterable, other_iterable)
+
+    extend = chain
+
+    @as_seq
+    def append(self, value):
+        return self.extend((value,))
 
     @as_seq
     def flatten(self):
@@ -184,6 +202,9 @@ class Seq:
 
     def none(self, pred=None):
         return not self.any(pred)
+
+    def contains(self, value):
+        return self.any(lambda v: v == value)
 
     def for_each(self, func):
         for item in self._iterable:

@@ -29,7 +29,7 @@ def test_seq():
     _test_seq(Seq([9, 3, 2, 8]).sort_desc(), [9, 8, 3, 2])
     _test_seq(Seq([5, 1, 2, 1, 3, 1, 4]).unique(), [5, 1, 2, 3, 4])
     _test_seq(Seq.range(4).zip_with([9, 8, 7, 6, 5]), [(0, 9), (1, 8), (2, 7), (3, 6)])
-    _test_seq(Seq.range(4).chain([-2, -1]).chain(Seq.once(-42)), [0, 1, 2, 3, -2, -1, -42])
+    _test_seq(Seq.range(4).chain([-2, -1]).extend([9]).append(-42), [0, 1, 2, 3, -2, -1, 9, -42])
     Seq(['Alpha', 'Beta', 'Gamma']).flatten().to_str() == 'AlphaBetaGamma'
     _test_seq(Seq.range(3).flat_map(lambda x: range(10, 11 + x)), [10, 10, 11, 10, 11, 12])
     assert Seq.range(3).all(lambda x: x < 10)
@@ -58,3 +58,8 @@ def test_seq():
     _test_seq(Seq([Opt.some(1), Opt.none(), Opt.some(2), Opt.none()]).filter_map(identity), [1, 2])
     _test_seq(Seq.range(8).map(lambda x: x ** 2).chunk(3), [[0, 1, 4], [9, 16, 25], [36, 49]])
     assert Seq.range(10).take_if(lambda x: x % 3 == 0).len() == 4
+    _test_seq(Seq([1, 2, 2, 3, 7]).intersection([2, 9, 3, 7, 7]), [2, 3, 7])
+    _test_seq(Seq([1, 2, 2, 3, 7]).union([2, 9, 3, 7, 7]), [1, 2, 3, 7, 9])
+    _test_seq(Seq([1, 2, 2, 3, 7]).difference([2, 9, 3, 7, 7]), [1])
+    assert Seq([1, 2, 3]).contains(3)
+    assert not Seq([1, 2, 3]).contains(8)
