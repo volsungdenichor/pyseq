@@ -194,10 +194,9 @@ class Seq:
         it1, it2 = itertools.tee(self._iterable, n)
         return Seq(it1), Seq(it2)
 
-    def partition(self, pred, post_op=None):
-        post_op = _if_none(post_op, identity)
+    def partition(self, pred):
         s1, s2 = self.tee()
-        return tuple(post_op(x) for x in (s1.take_if(pred), s2.drop_if(pred)))
+        return s1.take_if(pred), s2.drop_if(pred)
 
     def all(self, pred=None):
         return all(self.map(_if_none(pred, bool)))
