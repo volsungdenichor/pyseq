@@ -9,3 +9,10 @@ def ensure(cond, error):
         raise error
     elif isinstance(error, str):
         raise RuntimeError(error)
+
+
+def merge_dicts(*dicts):
+    result = dict()
+    for d in dicts:
+        result.update(d)
+    return result

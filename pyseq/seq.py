@@ -190,8 +190,8 @@ class Seq:
         if buffer:
             yield buffer
 
-    def tee(self):
-        it1, it2 = itertools.tee(self._iterable)
+    def tee(self, n=2):
+        it1, it2 = itertools.tee(self._iterable, n)
         return Seq(it1), Seq(it2)
 
     def partition(self, pred, post_op=None):
