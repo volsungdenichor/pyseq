@@ -153,7 +153,7 @@ class Seq:
     def exclude(self, other_iterable):
         if not isinstance(other_iterable, set):
             other_iterable = set(other_iterable)
-        return self.drop_if(lambda v: v in other_iterable)
+        return self.drop_if(lambda item: item in other_iterable)
 
     @as_seq
     def zip_with(self, other_iterable):
@@ -214,7 +214,7 @@ class Seq:
         return not self.any(pred)
 
     def contains(self, value):
-        return self.any(lambda v: v == value)
+        return self.any(lambda item: item == value)
 
     def for_each(self, func):
         for item in self._iterable:
@@ -246,10 +246,7 @@ class Seq:
 
     def to_dict(self, key_selector=None, value_selector=None):
         key_selector, value_selector = _adjust_selectors(key_selector, value_selector)
-        res = {}
-        for item in self._iterable:
-            res[key_selector(item)] = value_selector(item)
-        return res
+        return {key_selector(item): value_selector(item) for item in self._iterable}
 
     def to_multidict(self, key_selector=None, value_selector=None):
         key_selector, value_selector = _adjust_selectors(key_selector, value_selector)
