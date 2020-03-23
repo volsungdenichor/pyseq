@@ -48,10 +48,13 @@ class Opt:
         if self:
             return self._value
         else:
-            if isinstance(exception, str):
-                raise OptError(exception)
-            else:
+            if callable(exception):
+                exception = exception()
+
+            if isinstance(exception, Exception):
                 raise exception
+            else:
+                raise OptError(exception)
 
     def value_or_none(self):
         return self.value_or(None)
