@@ -38,10 +38,18 @@ class Opt:
     def none():
         return Opt(None)
 
+    def or_else(self, func):
+        if self:
+            return self
+        else:
+            res = func()
+            ensure(isinstance(res, Opt), lambda: 'or_else: result Opt expected')
+            return res
+
     def value_or(self, default_value):
         return self._value if self else default_value
 
-    def value_or_eval(self, func):
+    def value_or_else(self, func):
         return self._value if self else func()
 
     def value_or_raise(self, exception):
@@ -109,10 +117,12 @@ class Opt:
             return Opt.none()
 
     def __or__(self, other):
-        return self if self.has_value() else other
+        ensure(isinstance(other, Opt), lambda: 'Opt expected')
+        return self if self else other
 
     def __and__(self, other):
-        return self if not self.has_value() else other
+        ensure(isinstance(other, Opt), lambda: 'Opt expected')
+        return self if not self else other
 
     def __eq__(self, other):
         if isinstance(other, Opt):

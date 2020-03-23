@@ -39,7 +39,7 @@ def test_seq():
     assert Seq.range(1, 101).sum() == 5050
     assert not Seq([]).first()
     assert Seq([]).first().value_or(-1) == -1
-    assert Seq([]).first().value_or_eval(lambda: -2) == -2
+    assert Seq([]).first().value_or_else(lambda: -2) == -2
     assert Seq([1, 2, 3]).first() == Opt.some(1)
     assert Seq([1, 2, 3]).nth(1) == Opt.some(2)
     assert Seq([1, 2, 3]).nth(4) == Opt.none()

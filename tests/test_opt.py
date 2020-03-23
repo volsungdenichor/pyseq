@@ -29,7 +29,7 @@ def test_opt():
     assert Opt.some(2).value() == 2
     assert Opt.some(2).value_or(-1) == 2
     assert Opt.none().value_or(-1) == -1
-    assert Opt.none().value_or_eval(lambda: -1) == -1
+    assert Opt.none().value_or_else(lambda: -1) == -1
     assert Opt.some(2).map(lambda x: x * x) == Opt.some(4)
     assert Opt.none().map(lambda x: x * x) == Opt.none()
     assert Opt.some(4).filter(lambda x: x > 2) == Opt.some(4)
@@ -48,6 +48,8 @@ def test_opt():
     assert Opt.some(8).contains(8)
     assert not Opt.some(8).contains(7)
     assert not Opt.none().contains(8)
+    assert Opt.some(9).or_else(lambda: Opt(4)) == Opt.some(9)
+    assert Opt.none().or_else(lambda: Opt(4)) == Opt.some(4)
 
     item = Super(
         Sub('K', 'L'),
