@@ -60,7 +60,8 @@ def test_seq():
     assert Seq.range(10).take_if(lambda x: x % 3 == 0).len() == 4
     _test_seq(Seq([1, 2, 2, 3, 7]).intersection([2, 9, 3, 7, 7]), [2, 3, 7])
     _test_seq(Seq([1, 2, 2, 3, 7]).union([2, 9, 3, 7, 7]), [1, 2, 3, 7, 9])
-    _test_seq(Seq([1, 2, 2, 3, 7]).difference([2, 9, 3, 7, 7]), [1])
+    _test_seq(Seq([7, 2, 2, 3, 1]).difference([3]), [1, 2, 7])
+    _test_seq(Seq([9, 1, 6, 2, 7]).exclude([7, 1]), [9, 6, 2])
     assert Seq([1, 2, 3]).contains(3)
     assert not Seq([1, 2, 3]).contains(8)
     assert tuple(x.to_list() for x in Seq([1, 2, 3, 4, 5]).partition(lambda x: x % 2 == 0)) == ([2, 4], [1, 3, 5])

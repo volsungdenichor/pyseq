@@ -150,6 +150,12 @@ class Seq:
         return self.to_set().difference(other_iterable)
 
     @as_seq
+    def exclude(self, other_iterable):
+        if not isinstance(other_iterable, set):
+            other_iterable = set(other_iterable)
+        return self.drop_if(lambda v: v in other_iterable)
+
+    @as_seq
     def zip_with(self, other_iterable):
         return Seq.zip(self._iterable, other_iterable)
 
