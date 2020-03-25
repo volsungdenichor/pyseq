@@ -33,9 +33,6 @@ class Seq:
     def __iter__(self):
         return iter(self._iterable)
 
-    def __len__(self):
-        return self.len()
-
     def len(self):
         return sum(1 for item in self._iterable)
 

@@ -4,7 +4,7 @@ from pyseq.seq import Seq
 
 
 def _test_seq(seq, expected):
-    assert seq.to_list() == expected
+    assert list(seq) == expected
 
 
 def test_seq():
