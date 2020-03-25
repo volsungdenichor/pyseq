@@ -280,5 +280,9 @@ class Seq:
     def nth(self, index):
         return self.drop(index).first()
 
+    def single(self):
+        lst = self.take(2).to_list()
+        return Opt.some(lst[0]) if len(lst) == 1 else Opt.none()
+
     def find(self, pred):
         return self.drop_until(pred).first()
