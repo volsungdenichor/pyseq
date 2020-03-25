@@ -65,3 +65,5 @@ def test_seq():
     assert Seq([1, 2, 3]).contains(3)
     assert not Seq([1, 2, 3]).contains(8)
     assert tuple(x.to_list() for x in Seq([1, 2, 3, 4, 5]).partition(lambda x: x % 2 == 0)) == ([2, 4], [1, 3, 5])
+    _test_seq(Seq([3, 0, 9, 8, 7]).adjacent(), [(3, 0), (0, 9), (9, 8), (8, 7)])
+    _test_seq(Seq([3, 0, 9, 8]).adjacent_difference(None), [-3, 9, -1])

@@ -204,6 +204,16 @@ class Seq:
         s1, s2 = self.tee()
         return s1.take_if(pred), s2.drop_if(pred)
 
+    @as_seq
+    def adjacent(self):
+        s1, s2 = self.tee()
+        return Seq.zip(s1, s2.drop(1))
+
+    @as_seq
+    def adjacent_difference(self, func=None):
+        func = _if_none(func, operator.sub)
+        return self.adjacent().map(lambda pair: func(pair[1], pair[0]))
+
     def all(self, pred=None):
         return all(self.map(_if_none(pred, bool)))
 
