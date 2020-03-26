@@ -1,6 +1,8 @@
 from math import sqrt
 
-from pyseq.opt import Opt
+import pytest
+
+from pyseq.opt import Opt, OptError
 
 
 def square_root(x):
@@ -30,6 +32,8 @@ def test_opt():
     assert Opt.some(2).value_or(-1) == 2
     assert Opt.none().value_or(-1) == -1
     assert Opt.none().value_or_else(lambda: -1) == -1
+    with pytest.raises(OptError):
+        assert Opt.none().value_or_raise('A') == -1
     assert Opt.some(2).map(lambda x: x * x) == Opt.some(4)
     assert Opt.none().map(lambda x: x * x) == Opt.none()
     assert Opt.some(4).filter(lambda x: x > 2) == Opt.some(4)
