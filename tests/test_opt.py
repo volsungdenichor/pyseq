@@ -36,11 +36,15 @@ def test_opt():
         assert Opt.none().value_or_raise('A') == -1
     assert Opt.some(2).map(lambda x: x * x) == Opt.some(4)
     assert Opt.none().map(lambda x: x * x) == Opt.none()
+    with pytest.raises(RuntimeError, match='Opt not expected'):
+        Opt.some(2).map(lambda x: Opt(x))
     assert Opt.some(4).filter(lambda x: x > 2) == Opt.some(4)
     assert Opt.some(1).filter(lambda x: x > 2) == Opt.none()
     assert Opt.none().filter(lambda x: x > 2) == Opt.none()
     assert Opt.some(4).flat_map(square_root) == Opt.some(2)
     assert Opt.none().flat_map(square_root) == Opt.none()
+    with pytest.raises(RuntimeError, match='Opt expected'):
+        Opt.some(3).flat_map(lambda x: x + 1)
     assert Opt.some(-4).flat_map(square_root) == Opt.none()
     assert Opt.some(2) | Opt.some(4) == Opt.some(2)
     assert Opt.none() | Opt.some(4) == Opt.some(4)
@@ -65,6 +69,7 @@ def test_opt():
     assert Opt.of_nullable(item).getattr('super_b', 'sub_c', 'd') == Opt.none()
 
     dct = {'name': {
+        'number': [[0, 1, 44]],
         'first': 'Adam',
         'last': 'Mickiewicz'}
     }
@@ -72,3 +77,4 @@ def test_opt():
     assert Opt.of_nullable(dct).getitem('name').getitem('first') == Opt.some('Adam')
     assert Opt.of_nullable(dct).getitem('name', 'first') == Opt.some('Adam')
     assert Opt.of_nullable(dct).getitem('name', 'middle') == Opt.none()
+    assert Opt.of_nullable(dct).getitem('name', 'number', 0, 2) == Opt.some(44)

@@ -95,13 +95,13 @@ class Opt:
     def getattr(self, *names):
         res = self
         for name in names:
-            res = res.flat_map(lambda v: Opt.of_nullable(getattr(v, name, None)))
+            res = res.flat_map(lambda v: Opt.eval(lambda: getattr(v, name)))
         return res
 
     def getitem(self, *names):
         res = self
         for name in names:
-            res = res.flat_map(lambda v: Opt.of_nullable(v.get(name, None)))
+            res = res.flat_map(lambda v: Opt.eval(lambda: v[name]))
         return res
 
     def contains(self, value):
