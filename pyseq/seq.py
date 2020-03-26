@@ -62,6 +62,11 @@ class Seq:
         if value is not None:
             yield value
 
+    @staticmethod
+    @as_seq
+    def empty():
+        yield from ()
+
     @as_seq
     def map(self, func):
         return map(func, self._iterable)
