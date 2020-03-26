@@ -5,6 +5,10 @@ from pyseq.core import ensure
 from pyseq.opt import Opt
 
 
+def do_nothing(*args, **kwargs):
+    pass
+
+
 def identity(x):
     return x
 
@@ -67,8 +71,5 @@ def nested_getter(*keys):
     return lambda dct: get_nested(dct, *keys)
 
 
-def invoke_on_tuple(func):
+def unpack(func):
     return lambda arg: func(*arg)
-
-
-unpack = invoke_on_tuple
