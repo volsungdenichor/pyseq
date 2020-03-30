@@ -1,4 +1,4 @@
-def ensure(cond, error):
+def ensure(cond, error, error_type=RuntimeError):
     if cond:
         return
 
@@ -8,7 +8,7 @@ def ensure(cond, error):
     if isinstance(error, Exception):
         raise error
     elif isinstance(error, str):
-        raise RuntimeError(error)
+        raise error_type(error)
 
 
 def merge_dicts(*dicts):

@@ -52,16 +52,8 @@ class Opt:
         return self._value if self else func()
 
     def value_or_raise(self, exception):
-        if self:
-            return self._value
-        else:
-            if callable(exception):
-                exception = exception()
-
-            if isinstance(exception, Exception):
-                raise exception
-            else:
-                raise OptError(exception)
+        ensure(self, exception, error_type=OptError)
+        return self._value
 
     def value_or_none(self):
         return self.value_or(None)
