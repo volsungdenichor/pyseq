@@ -63,10 +63,10 @@ def test_opt():
         Sub('K', 'L'),
         Sub('M', 'N'))
 
-    assert Opt.of_nullable(item).getattr('super_a').getattr('sub_a') == Opt.some('K')
-    assert Opt.of_nullable(item).getattr('super_b', 'sub_b') == Opt.some('N')
-    assert Opt.of_nullable(item).getattr('super_b', 'sub_c') == Opt.none()
-    assert Opt.of_nullable(item).getattr('super_b', 'sub_c', 'd') == Opt.none()
+    assert Opt.some(item).getattr('super_a').getattr('sub_a') == Opt.some('K')
+    assert Opt.some(item).getattr('super_b', 'sub_b') == Opt.some('N')
+    assert Opt.some(item).getattr('super_b', 'sub_c') == Opt.none()
+    assert Opt.some(item).getattr('super_b', 'sub_c', 'd') == Opt.none()
 
     dct = {'name': {
         'number': [[0, 1, 44]],
@@ -74,7 +74,7 @@ def test_opt():
         'last': 'Mickiewicz'}
     }
 
-    assert Opt.of_nullable(dct).getitem('name').getitem('first') == Opt.some('Adam')
-    assert Opt.of_nullable(dct).getitem('name', 'first') == Opt.some('Adam')
-    assert Opt.of_nullable(dct).getitem('name', 'middle') == Opt.none()
-    assert Opt.of_nullable(dct).getitem('name', 'number', 0, 2) == Opt.some(44)
+    assert Opt.some(dct).getitem('name').getitem('first') == Opt.some('Adam')
+    assert Opt.some(dct).getitem('name', 'first') == Opt.some('Adam')
+    assert Opt.some(dct).getitem('name', 'middle') == Opt.none()
+    assert Opt.some(dct).getitem('name', 'number', 0, 2) == Opt.some(44)

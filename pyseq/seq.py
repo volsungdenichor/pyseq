@@ -288,7 +288,7 @@ class Seq:
         return Opt.eval(lambda: max(self._iterable, key=_if_none(key, identity)))
 
     def first(self):
-        return Opt.of_nullable(next(iter(self._iterable), None))
+        return Opt.of(next(iter(self._iterable), None))
 
     def nth(self, index):
         return self.drop(index).first()

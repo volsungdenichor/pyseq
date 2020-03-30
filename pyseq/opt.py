@@ -7,7 +7,7 @@ class OptError(Exception):
 
 class Opt:
     def __init__(self, value=None):
-        self._value = value
+        self._value = value._value if isinstance(value, Opt) else value
 
     def __str__(self):
         return f'some({self._value})' if self else 'none'
@@ -16,23 +16,22 @@ class Opt:
 
     @staticmethod
     def of(value):
-        ensure(value is not None, lambda: OptError())
         return Opt(value)
 
     @staticmethod
-    def of_nullable(value):
-        if isinstance(value, Opt):
-            return Opt(value._value)
+    def some(value):
+        ensure(value is not None, lambda: OptError('value expected, got None'))
         return Opt(value)
 
     @staticmethod
-    def eval(func):
+    def eval(func, exceptions=None):
+        if exceptions is None:
+            exceptions = Exception
+
         try:
-            return Opt.of_nullable(func())
-        except:
+            return Opt.of(func())
+        except exceptions:
             return Opt.none()
-
-    some = of
 
     @staticmethod
     def none():
