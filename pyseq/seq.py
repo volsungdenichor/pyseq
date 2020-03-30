@@ -49,14 +49,16 @@ class Seq:
 
     @staticmethod
     @as_seq
-    def repeat(value, count):
-        return itertools.repeat(value, count)
+    def repeat(value, n=None):
+        if n is not None:
+            return itertools.repeat(value, n)
+        else:
+            return itertools.repeat(value)
 
     @staticmethod
     @as_seq
     def once(value):
-        if value is not None:
-            yield value
+        yield value
 
     @staticmethod
     @as_seq
@@ -219,13 +221,13 @@ class Seq:
         func = func or operator.sub
         return self.adjacent().map(lambda pair: func(pair[1], pair[0]))
 
-    def all(self, pred=None):
-        return all(self.map(pred or bool))
+    def all(self, pred=bool):
+        return all(self.map(pred))
 
-    def any(self, pred=None):
-        return any(self.map(pred or bool))
+    def any(self, pred=bool):
+        return any(self.map(pred))
 
-    def none(self, pred=None):
+    def none(self, pred=bool):
         return not self.any(pred)
 
     def contains(self, value):
@@ -273,14 +275,14 @@ class Seq:
     def reduce(self, func, init):
         return functools.reduce(func, self._iterable, init)
 
-    def sum(self, init=None):
-        return self.reduce(operator.add, 0.0 if init is None else init)
+    def sum(self, init=0.0):
+        return self.reduce(operator.add, init)
 
-    def min(self, key=None):
-        return Opt.eval(lambda: min(self._iterable, key=key or identity))
+    def min(self, key=identity):
+        return Opt.eval(lambda: min(self._iterable, key=key))
 
-    def max(self, key=None):
-        return Opt.eval(lambda: max(self._iterable, key=key or identity))
+    def max(self, key=identity):
+        return Opt.eval(lambda: max(self._iterable, key=key))
 
     def first(self):
         return Opt.of(next(iter(self._iterable), None))

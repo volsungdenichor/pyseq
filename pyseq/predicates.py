@@ -1,6 +1,13 @@
 import re
 
 
+def as_predicate(func):
+    def wrapper(*args, **kwargs):
+        return Predicate(func(*args, **kwargs))
+
+    return wrapper
+
+
 class Predicate:
     def __init__(self, pred):
         self._pred = pred._pred if isinstance(pred, Predicate) \
@@ -10,41 +17,38 @@ class Predicate:
     def __call__(self, item):
         return self._pred(item)
 
+    @as_predicate
     def __and__(self, other):
         def result(item):
             return self(item) and other(item)
 
-        return Predicate(result)
+        return result
 
+    @as_predicate
     def __or__(self, other):
         def result(item):
             return self(item) or other(item)
 
-        return Predicate(result)
+        return result
 
+    @as_predicate
     def __xor__(self, other):
         def result(item):
             return self(item) ^ other(item)
 
-        return Predicate(result)
+        return result
 
+    @as_predicate
     def __invert__(self):
         def result(item):
             return not self(item)
 
-        return Predicate(result)
+        return result
 
     def __str__(self):
         return str(self._pred)
 
     __repr__ = __str__
-
-
-def as_predicate(func):
-    def wrapper(*args, **kwargs):
-        return Predicate(func(*args, **kwargs))
-
-    return wrapper
 
 
 always = Predicate(lambda _: True)
@@ -91,7 +95,7 @@ greater_equal = ge
 
 @as_predicate
 def between(lo, up):
-    return lambda arg: lo <= arg < up
+    return lambda arg: lo <= arg <= up
 
 
 @as_predicate
@@ -99,7 +103,7 @@ def divisible_by(d):
     return lambda arg: arg % d == 0
 
 
-even = Predicate(lambda arg: arg % 2 == 0)
+even = divisible_by(2)
 odd = ~even
 
 
@@ -162,15 +166,15 @@ def inside(value):
 
 
 @as_predicate
-def contains_all(*values):
+def contains_all_of(*values):
     return lambda arg: all(contains(v)(arg) for v in values)
 
 
 @as_predicate
-def contains_any(*values):
+def contains_any_of(*values):
     return lambda arg: any(contains(v)(arg) for v in values)
 
 
 @as_predicate
-def contains_none(*values):
+def contains_none_of(*values):
     return lambda arg: not any(contains(v)(arg) for v in values)

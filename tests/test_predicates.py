@@ -54,16 +54,16 @@ def test_predicates():
     _test_pred(any_of(1, 4, 9),
                pos=[1, 4, 9],
                neg=[2, 5, 10])
-    _test_pred(contains_all(1, 4),
+    _test_pred(contains_all_of(1, 4),
                pos=[[1, 2, 3, 4], [1, 4]],
                neg=[[1], [4]])
-    _test_pred(contains_all('a', 'b'),
+    _test_pred(contains_all_of('a', 'b'),
                pos=[{'a': 1, 'b': 2}],
                neg=[])
-    _test_pred(contains_none(1, 2),
+    _test_pred(contains_none_of(1, 2),
                pos=[[3, 4]],
                neg=[[1], [2], [1, 2]])
-    _test_pred(contains_any(1, 2),
+    _test_pred(contains_any_of(1, 2),
                pos=[[1], [2], [1, 2], [1, 3, 4]],
                neg=[[], [3, 4]])
     _test_pred(contains(5),

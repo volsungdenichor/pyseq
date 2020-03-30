@@ -12,7 +12,6 @@ def test_seq():
     _test_seq(Seq.zip(range(5), [9, 8, 7]), [(0, 9), (1, 8), (2, 7)])
     _test_seq(Seq.repeat(6, 3), [6, 6, 6])
     _test_seq(Seq.once(6), [6])
-    _test_seq(Seq.once(None), [])
     _test_seq(Seq.empty(), [])
     _test_seq(Seq.range(4).map(lambda x: x ** 2), [0, 1, 4, 9])
     _test_seq(Seq.range(10).take_if(lambda x: x % 3 == 0), [0, 3, 6, 9])
