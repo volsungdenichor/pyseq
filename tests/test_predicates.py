@@ -36,6 +36,9 @@ def test_predicates():
     _test_pred(greater_equal(7),
                pos=[7, 8, 9, 10],
                neg=[1, 2, 3])
+    _test_pred(approx_equal(7.0, abs_tol=0.01),
+               pos=[7.0, 7.005, 6.995, 7.01, 6.99],
+               neg=[7.020, 6.080])
     _test_pred(has_len(2),
                pos=[[1, 2], [3, 4]],
                neg=[[], [1, 2, 3]])

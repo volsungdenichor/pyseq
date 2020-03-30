@@ -1,4 +1,5 @@
 import re
+from math import isclose
 
 
 def as_predicate(func):
@@ -91,6 +92,16 @@ less = lt
 less_equal = le
 greater = gt
 greater_equal = ge
+
+
+@as_predicate
+def approx_equal(value, rel_tol=None, abs_tol=None):
+    kwargs = {}
+    if abs_tol is not None:
+        kwargs['abs_tol'] = abs_tol
+    if rel_tol is not None:
+        kwargs['rel_tol'] = rel_tol
+    return lambda arg: isclose(arg, value, **kwargs)
 
 
 @as_predicate
