@@ -1,3 +1,6 @@
+from pyseq.predicates import Predicate, always
+
+
 class MatchError(Exception):
     pass
 
@@ -14,10 +17,7 @@ def _try_invoke(func, item):
 
 
 def _convert_pred(pred):
-    if callable(pred):
-        return pred
-    else:
-        return lambda item: item == pred
+    return Predicate(pred)
 
 
 def _convert_func(func):
@@ -58,7 +58,7 @@ def when(pred):
     return _When(pred)
 
 
-__ = lambda *args, **kwargs: True
+__ = always
 
 
 def match(item, *handlers):
