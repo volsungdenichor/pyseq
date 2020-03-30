@@ -1,16 +1,13 @@
 import functools
 from operator import itemgetter
 
-from pyseq.core import ensure
-from pyseq.opt import Opt
-
 
 def do_nothing(*args, **kwargs):
     pass
 
 
-def identity(x):
-    return x
+def identity(arg):
+    return arg
 
 
 def negate(func):
@@ -34,41 +31,6 @@ def invoke_on_key(func):
 
 def invoke_on_value(func):
     return compose(get_value, func)
-
-
-def with_input(func):
-    return lambda arg: (arg, func(arg))
-
-
-def replace_if(pred, new_value):
-    return lambda arg: new_value if pred(arg) else arg
-
-
-def replace(old_value, new_value):
-    return lambda arg: new_value if arg == old_value else arg
-
-
-def raise_error(error):
-    def result(*args, **kwargs):
-        ensure(False, error)
-
-    return result
-
-
-def get(dct, key):
-    return Opt.some(dct).getitem(key)
-
-
-def getter(key):
-    return lambda dct: get(dct, key)
-
-
-def get_nested(dct, *keys):
-    return Opt.some(dct).getitem(*keys)
-
-
-def nested_getter(*keys):
-    return lambda dct: get_nested(dct, *keys)
 
 
 def unpack(func):

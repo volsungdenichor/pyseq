@@ -33,6 +33,8 @@ def test_seq():
     _test_seq(Seq.range(4).chain([-2, -1]).extend([9]).append(-42), [0, 1, 2, 3, -2, -1, 9, -42])
     Seq(['Alpha', 'Beta', 'Gamma']).flatten().to_str() == 'AlphaBetaGamma'
     _test_seq(Seq.range(3).flat_map(lambda x: range(10, 11 + x)), [10, 10, 11, 10, 11, 12])
+    _test_seq(Seq.range(10, 16).replace_if(lambda x: x % 3 == 0, -888), [10, 11, -888, 13, 14, -888])
+    _test_seq(Seq.range(10, 13).replace(10, -888), [-888, 11, 12])
     assert Seq.range(3).all(lambda x: x < 10)
     assert Seq.range(3).any(lambda x: x < 10)
     assert not Seq.range(3).none(lambda x: x < 10)

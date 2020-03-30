@@ -112,6 +112,14 @@ class Seq:
         return itertools.islice(self._iterable, *args)
 
     @as_seq
+    def replace_if(self, pred, new_value):
+        return self.map(lambda item: new_value if pred(item) else item)
+
+    @as_seq
+    def replace(self, old_value, new_value):
+        return self.replace_if(lambda item: item == old_value, new_value)
+
+    @as_seq
     def enumerate(self, start=0):
         return enumerate(self._iterable, start=start)
 
