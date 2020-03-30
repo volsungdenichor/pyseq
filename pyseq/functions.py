@@ -18,7 +18,7 @@ def negate(func):
 
 
 def compose(*functions):
-    return functools.reduce(lambda f, g: lambda x: g(f(x)), functions, identity)
+    return functools.reduce(lambda f, g: lambda x: g(f(x)), functions)
 
 
 get_key = itemgetter(0)

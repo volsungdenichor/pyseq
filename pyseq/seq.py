@@ -203,8 +203,7 @@ class Seq:
             yield buffer
 
     def tee(self, n=2):
-        it1, it2 = itertools.tee(self._iterable, n)
-        return Seq(it1), Seq(it2)
+        return tuple(Seq(it) for it in itertools.tee(self._iterable, n))
 
     def partition(self, pred):
         s1, s2 = self.tee()
