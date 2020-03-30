@@ -13,10 +13,6 @@ def as_seq(func):
     return wrapper
 
 
-def _if_none(value, other):
-    return value if value is not None else other
-
-
 def _adjust_selectors(key_selector, value_selector):
     if key_selector is None and value_selector is None:
         return operator.itemgetter(0), operator.itemgetter(1)
@@ -221,14 +217,14 @@ class Seq:
 
     @as_seq
     def adjacent_difference(self, func=None):
-        func = _if_none(func, operator.sub)
+        func = func or operator.sub
         return self.adjacent().map(lambda pair: func(pair[1], pair[0]))
 
     def all(self, pred=None):
-        return all(self.map(_if_none(pred, bool)))
+        return all(self.map(pred or bool))
 
     def any(self, pred=None):
-        return any(self.map(_if_none(pred, bool)))
+        return any(self.map(pred or bool))
 
     def none(self, pred=None):
         return not self.any(pred)
@@ -279,13 +275,13 @@ class Seq:
         return functools.reduce(func, self._iterable, init)
 
     def sum(self, init=None):
-        return self.reduce(operator.add, _if_none(init, 0))
+        return self.reduce(operator.add, 0.0 if init is None else init)
 
     def min(self, key=None):
-        return Opt.eval(lambda: min(self._iterable, key=_if_none(key, identity)))
+        return Opt.eval(lambda: min(self._iterable, key=key or identity))
 
     def max(self, key=None):
-        return Opt.eval(lambda: max(self._iterable, key=_if_none(key, identity)))
+        return Opt.eval(lambda: max(self._iterable, key=key or identity))
 
     def first(self):
         return Opt.of(next(iter(self._iterable), None))
