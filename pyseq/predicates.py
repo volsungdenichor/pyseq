@@ -15,34 +15,34 @@ class Predicate:
             else pred if callable(pred) \
             else lambda arg: arg == pred
 
-    def __call__(self, item):
-        return self._pred(item)
+    def __call__(self, *args, **kwargs):
+        return self._pred(*args, **kwargs)
 
     @as_predicate
     def __and__(self, other):
-        def result(item):
-            return self(item) and other(item)
+        def result(*args, **kwargs):
+            return self(*args, **kwargs) and other(*args, **kwargs)
 
         return result
 
     @as_predicate
     def __or__(self, other):
-        def result(item):
-            return self(item) or other(item)
+        def result(*args, **kwargs):
+            return self(*args, **kwargs) or other(*args, **kwargs)
 
         return result
 
     @as_predicate
     def __xor__(self, other):
-        def result(item):
-            return self(item) ^ other(item)
+        def result(*args, **kwargs):
+            return self(*args, **kwargs) ^ other(*args, **kwargs)
 
         return result
 
     @as_predicate
     def __invert__(self):
-        def result(item):
-            return not self(item)
+        def result(*args, **kwargs):
+            return not self(*args, **kwargs)
 
         return result
 
@@ -52,7 +52,7 @@ class Predicate:
     __repr__ = __str__
 
 
-always = Predicate(lambda _: True)
+always = Predicate(lambda *args, **kwargs: True)
 never = ~always
 
 
