@@ -45,33 +45,30 @@ class Opt:
             ensure(isinstance(res, Opt), lambda: 'or_else: result Opt expected')
             return res
 
-    def value_or(self, default_value):
+    def get_or(self, default_value):
         return self._value if self else default_value
 
-    def value_or_else(self, func):
+    def get_or_else(self, func):
         return self._value if self else func()
 
-    def value_or_raise(self, exception):
+    def get_or_raise(self, exception):
         ensure(self, exception, error_type=OptError)
         return self._value
 
-    def value_or_none(self):
-        return self.value_or(None)
+    def get_or_none(self):
+        return self.get_or(None)
 
-    def value(self):
-        return self.value_or_raise('empty optional')
-
-    def has_value(self):
-        return self._value is not None
+    def get(self):
+        return self.get_or_raise('empty optional')
 
     def is_some(self):
-        return self.has_value()
+        return self._value is not None
 
     def is_none(self):
         return not self.is_some()
 
     def __bool__(self):
-        return self.has_value()
+        return self.is_some()
 
     def map(self, func):
         if self:

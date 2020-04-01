@@ -190,8 +190,8 @@ class Seq:
         for item in self._iterable:
             res = func(item)
             assert isinstance(res, Opt)
-            if res.has_value():
-                yield res.value()
+            if res.is_some():
+                yield res.get()
 
     @as_seq
     def chunk(self, chunk_size):

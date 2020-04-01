@@ -26,16 +26,14 @@ class Super:
 
 def test_opt():
     assert Opt.some(2) == 2
-    assert Opt.some(2).has_value()
     assert Opt.some(4).is_some()
     assert Opt.none().is_none()
-    assert not Opt.none().has_value()
-    assert Opt.some(2).value() == 2
-    assert Opt.some(2).value_or(-1) == 2
-    assert Opt.none().value_or(-1) == -1
-    assert Opt.none().value_or_else(lambda: -1) == -1
+    assert Opt.some(2).get() == 2
+    assert Opt.some(2).get_or(-1) == 2
+    assert Opt.none().get_or(-1) == -1
+    assert Opt.none().get_or_else(lambda: -1) == -1
     with pytest.raises(OptError):
-        assert Opt.none().value_or_raise('A') == -1
+        assert Opt.none().get_or_raise('A') == -1
     assert Opt.some(2).map(lambda x: x * x) == Opt.some(4)
     assert Opt.none().map(lambda x: x * x) == Opt.none()
     with pytest.raises(RuntimeError, match='Opt not expected'):
