@@ -27,6 +27,8 @@ class Super:
 def test_opt():
     assert Opt.some(2) == 2
     assert Opt.some(2).has_value()
+    assert Opt.some(4).is_some()
+    assert Opt.none().is_none()
     assert not Opt.none().has_value()
     assert Opt.some(2).value() == 2
     assert Opt.some(2).value_or(-1) == 2

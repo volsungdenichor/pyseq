@@ -64,6 +64,12 @@ class Opt:
     def has_value(self):
         return self._value is not None
 
+    def is_some(self):
+        return self.has_value()
+
+    def is_none(self):
+        return not self.is_some()
+
     def __bool__(self):
         return self.has_value()
 
