@@ -1,4 +1,5 @@
 from pyseq.core import ensure
+from pyseq.functions import negate
 
 
 class OptError(Exception):
@@ -110,13 +111,25 @@ class Opt:
         else:
             return Opt.none()
 
-    def __or__(self, other):
+    def take_if(self, pred):
+        return self.filter(pred)
+
+    def drop_if(self, pred):
+        return self.filter(negate(pred))
+
+    def or_(self, other):
         ensure(isinstance(other, Opt), lambda: 'Opt expected')
         return self if self else other
 
-    def __and__(self, other):
+    def and_(self, other):
         ensure(isinstance(other, Opt), lambda: 'Opt expected')
         return self if not self else other
+
+    def __or__(self, other):
+        return self.or_(other)
+
+    def __and__(self, other):
+        return self.and_(other)
 
     def __eq__(self, other):
         if isinstance(other, Opt):

@@ -71,6 +71,7 @@ def test_opt():
     dct = {'name': {
         'number': [[0, 1, 44]],
         'first': 'Adam',
+        'middle': None,
         'last': 'Mickiewicz'}
     }
 
@@ -78,3 +79,5 @@ def test_opt():
     assert Opt.some(dct).getitem('name', 'first') == Opt.some('Adam')
     assert Opt.some(dct).getitem('name', 'middle') == Opt.none()
     assert Opt.some(dct).getitem('name', 'number', 0, 2) == Opt.some(44)
+    assert Opt.some(dct).getitem('name', 'middle') == Opt.none()
+    
