@@ -221,6 +221,10 @@ class Seq:
         func = func or operator.sub
         return self.adjacent().map(lambda pair: func(pair[1], pair[0]))
 
+    @as_seq
+    def intersperse(self, delimiter):
+        return Seq.zip(Seq.repeat(delimiter), self._iterable).flatten().drop(1)
+
     def all(self, pred=bool):
         return all(self.map(pred))
 

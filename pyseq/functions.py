@@ -17,8 +17,12 @@ def negate(func):
     return result
 
 
-def compose(*functions):
+def pipe(*functions):
     return functools.reduce(lambda f, g: lambda x: g(f(x)), functions)
+
+
+def compose(*functions):
+    return functools.reduce(lambda f, g: lambda x: f(g(x)), functions)
 
 
 get_key = itemgetter(0)
@@ -26,11 +30,11 @@ get_value = itemgetter(1)
 
 
 def invoke_on_key(func):
-    return compose(get_key, func)
+    return pipe(get_key, func)
 
 
 def invoke_on_value(func):
-    return compose(get_value, func)
+    return pipe(get_value, func)
 
 
 def unpack(func):
