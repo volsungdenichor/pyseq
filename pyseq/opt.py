@@ -99,11 +99,11 @@ class Opt:
             res = res.flat_map(lambda v: Opt.eval(lambda: v[name]))
         return res
 
-    def contains(self, value):
-        return self and self._value == value
-
     def matches(self, pred):
         return self and pred(self._value)
+
+    def contains(self, value):
+        return self.matches(lambda v: v == value)
 
     def filter(self, pred):
         if self.matches(pred):
