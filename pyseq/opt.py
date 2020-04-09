@@ -102,11 +102,11 @@ class Opt:
     def contains(self, value):
         return self and self._value == value
 
-    def exists(self, pred):
+    def matches(self, pred):
         return self and pred(self._value)
 
     def filter(self, pred):
-        if self.exists(pred):
+        if self.matches(pred):
             return self
         else:
             return Opt.none()
