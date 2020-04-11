@@ -193,16 +193,56 @@ class Seq:
             if res.is_some():
                 yield res.get()
 
-    @as_seq
-    def chunk(self, chunk_size):
+    def _split(self, handler):
         buffer = []
+
         for item in self._iterable:
-            buffer.append(item)
-            if len(buffer) == chunk_size:
-                yield buffer
-                buffer = []
+            res, buffer = handler(item, buffer)
+            if res:
+                yield res
+
         if buffer:
             yield buffer
+
+    @as_seq
+    def split_at(self, pred):
+        def handler(item, buffer):
+            if not pred(item):
+                return [], buffer + [item]
+            else:
+                return buffer, []
+
+        return self._split(handler)
+
+    @as_seq
+    def split_after(self, pred):
+        def handler(item, buffer):
+            if pred(item):
+                return buffer + [item], []
+            else:
+                return [], buffer + [item]
+
+        return self._split(handler)
+
+    @as_seq
+    def split_before(self, pred):
+        def handler(item, buffer):
+            if pred(item):
+                return buffer, [item]
+            else:
+                return [], buffer + [item]
+
+        return self._split(handler)
+
+    @as_seq
+    def chunk(self, chunk_size):
+        def handler(item, buffer):
+            if len(buffer) == chunk_size:
+                return buffer, [item]
+            else:
+                return [], buffer + [item]
+
+        return self._split(handler)
 
     def tee(self, n=2):
         return tuple(Seq(it) for it in itertools.tee(self._iterable, n))

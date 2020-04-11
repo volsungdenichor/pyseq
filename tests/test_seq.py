@@ -62,6 +62,9 @@ def test_seq():
     _test_seq(Seq([0, None, 1, None, 2, None]).filter_map(Opt), [0, 1, 2])
     _test_seq(Seq([Opt.some(1), Opt.none(), Opt.some(2), Opt.none()]).filter_map(identity), [1, 2])
     _test_seq(Seq.range(8).map(lambda x: x ** 2).chunk(3), [[0, 1, 4], [9, 16, 25], [36, 49]])
+    _test_seq(Seq('x,y,z').split_after(lambda x: x == ','), [['x', ','], ['y', ','], ['z']])
+    _test_seq(Seq('x,y,z').split_before(lambda x: x == ','), [['x'], [',', 'y'], [',', 'z']])
+    _test_seq(Seq('xy,,yz,,zz,,').split_at(lambda x: x == ','), [['x', 'y'], ['y', 'z'], ['z', 'z']])
     assert Seq.range(10).take_if(lambda x: x % 3 == 0).len() == 4
     _test_seq(Seq([1, 2, 2, 3, 7]).intersection([2, 9, 3, 7, 7]), [2, 3, 7])
     _test_seq(Seq([1, 2, 2, 3, 7]).union([2, 9, 3, 7, 7]), [1, 2, 3, 7, 9])
