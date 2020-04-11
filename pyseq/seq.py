@@ -20,6 +20,11 @@ def _adjust_selectors(key_selector, value_selector):
         return key_selector or identity, value_selector or identity
 
 
+def _append(lst, item):
+    lst.append(item)
+    return lst
+
+
 class Seq:
     def __init__(self, iterable):
         self._iterable = iterable._iterable if isinstance(iterable, Seq) else iterable
@@ -204,19 +209,19 @@ class Seq:
 
     @as_seq
     def split_at(self, pred):
-        return self._split(lambda item, buf: (buf, []) if pred(item) else ([], buf + [item]))
+        return self._split(lambda item, buf: (buf, []) if pred(item) else ([], _append(buf, item)))
 
     @as_seq
     def split_after(self, pred):
-        return self._split(lambda item, buf: (buf + [item], []) if pred(item) else ([], buf + [item]))
+        return self._split(lambda item, buf: (_append(buf, item), []) if pred(item) else ([], _append(buf, item)))
 
     @as_seq
     def split_before(self, pred):
-        return self._split(lambda item, buf: (buf, [item]) if pred(item) else ([], buf + [item]))
+        return self._split(lambda item, buf: (buf, [item]) if pred(item) else ([], _append(buf, item)))
 
     @as_seq
     def chunk(self, chunk_size):
-        return self._split(lambda item, buf: (buf, [item]) if len(buf) == chunk_size else ([], buf + [item]))
+        return self._split(lambda item, buf: (buf, [item]) if len(buf) == chunk_size else ([], _append(buf, item)))
 
     def tee(self, n=2):
         return tuple(Seq(it) for it in itertools.tee(self._iterable, n))
