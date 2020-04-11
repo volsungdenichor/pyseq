@@ -16,10 +16,8 @@ def as_seq(func):
 def _adjust_selectors(key_selector, value_selector):
     if key_selector is None and value_selector is None:
         return operator.itemgetter(0), operator.itemgetter(1)
-    elif value_selector is None:
-        return key_selector, identity
     else:
-        return key_selector, value_selector
+        return key_selector or identity, value_selector or identity
 
 
 class Seq:
@@ -194,55 +192,31 @@ class Seq:
                 yield res.get()
 
     def _split(self, handler):
-        buffer = []
+        buf = []
 
         for item in self._iterable:
-            res, buffer = handler(item, buffer)
+            res, buf = handler(item, buf)
             if res:
                 yield res
 
-        if buffer:
-            yield buffer
+        if buf:
+            yield buf
 
     @as_seq
     def split_at(self, pred):
-        def handler(item, buffer):
-            if not pred(item):
-                return [], buffer + [item]
-            else:
-                return buffer, []
-
-        return self._split(handler)
+        return self._split(lambda item, buf: (buf, []) if pred(item) else ([], buf + [item]))
 
     @as_seq
     def split_after(self, pred):
-        def handler(item, buffer):
-            if pred(item):
-                return buffer + [item], []
-            else:
-                return [], buffer + [item]
-
-        return self._split(handler)
+        return self._split(lambda item, buf: (buf + [item], []) if pred(item) else ([], buf + [item]))
 
     @as_seq
     def split_before(self, pred):
-        def handler(item, buffer):
-            if pred(item):
-                return buffer, [item]
-            else:
-                return [], buffer + [item]
-
-        return self._split(handler)
+        return self._split(lambda item, buf: (buf, [item]) if pred(item) else ([], buf + [item]))
 
     @as_seq
     def chunk(self, chunk_size):
-        def handler(item, buffer):
-            if len(buffer) == chunk_size:
-                return buffer, [item]
-            else:
-                return [], buffer + [item]
-
-        return self._split(handler)
+        return self._split(lambda item, buf: (buf, [item]) if len(buf) == chunk_size else ([], buf + [item]))
 
     def tee(self, n=2):
         return tuple(Seq(it) for it in itertools.tee(self._iterable, n))
