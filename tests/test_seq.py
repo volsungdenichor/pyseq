@@ -16,6 +16,8 @@ def test_seq():
     _test_seq(Seq.as_iterable(None), [])
     _test_seq(Seq.as_iterable(6), [6])
     _test_seq(Seq.as_iterable('abc'), ['abc'])
+    _test_seq(Seq.as_iterable(Opt.none()), [])
+    _test_seq(Seq.as_iterable(Opt.some('abc')), ['abc'])
     _test_seq(Seq.range(4).map(lambda x: x ** 2), [0, 1, 4, 9])
     _test_seq(Seq.range(10).take_if(lambda x: x % 3 == 0), [0, 3, 6, 9])
     _test_seq(Seq.range(10).drop_if(lambda x: x % 3 == 0), [1, 2, 4, 5, 7, 8])

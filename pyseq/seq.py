@@ -74,6 +74,8 @@ class Seq:
     def as_iterable(obj, base_type=(str, bytes)):
         if obj is None:
             return Seq.empty()
+        if isinstance(obj, Opt):
+            return Seq.as_iterable(obj.get_or_none())
         if base_type is not None and isinstance(obj, base_type):
             return Seq.once(obj)
         try:
