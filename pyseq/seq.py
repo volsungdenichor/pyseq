@@ -1,6 +1,7 @@
 import functools
 import itertools
 import operator
+from collections import deque
 
 from pyseq.functions import identity, negate
 from pyseq.opt import Opt
@@ -67,6 +68,18 @@ class Seq:
     @as_seq
     def empty():
         yield from ()
+
+    @staticmethod
+    @as_seq
+    def as_iterable(obj, base_type=(str, bytes)):
+        if obj is None:
+            return Seq.empty()
+        if base_type is not None and isinstance(obj, base_type):
+            return Seq.once(obj)
+        try:
+            return iter(obj)
+        except TypeError:
+            return Seq.once(obj)
 
     @as_seq
     def map(self, func):
@@ -309,6 +322,9 @@ class Seq:
 
     def first(self):
         return Opt.of(next(iter(self._iterable), None))
+
+    def last(self):
+        return Opt.eval(lambda: deque(self._iterable, maxlen=1)[0])
 
     def nth(self, index):
         return self.drop(index).first()
