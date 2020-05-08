@@ -39,3 +39,17 @@ def invoke_on_value(func):
 
 def unpack(func):
     return lambda arg: func(*arg)
+
+
+class Indexed:
+    def __init__(self, func, start=0):
+        self._func = func
+        self._index = start
+
+    def __call__(self, *args, **kwargs):
+        result = self._func(self._index, *args, **kwargs)
+        self._index += 1
+        return result
+
+
+indexed = Indexed
