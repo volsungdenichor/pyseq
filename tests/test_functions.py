@@ -26,3 +26,4 @@ def test_functions():
     assert _test_func(unpack(
         lambda k, v: f'{v}_{k * 11}'),
         dct.items()) == ['X_22', 'Y_33']
+

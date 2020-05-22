@@ -53,3 +53,18 @@ class Indexed:
 
 
 indexed = Indexed
+
+
+def associate(func):
+    def result(item):
+        return item, func(item)
+
+    return result
+
+
+def update_dict_value(func):
+    def result(item):
+        key, value = item
+        return key, func(value)
+
+    return result

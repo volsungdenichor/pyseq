@@ -83,3 +83,5 @@ def test_seq():
     _test_seq(Seq([3, 0, 9, 8, 7]).adjacent(), [(3, 0), (0, 9), (9, 8), (8, 7)])
     _test_seq(Seq([3, 0, 9, 8]).adjacent_difference(None), [-3, 9, -1])
     _test_seq(Seq(['A', 'B', 'C']).intersperse(','), ['A', ',', 'B', ',', 'C'])
+    assert Seq([1, 2, 3, 4, 5]).find_index(lambda x: x > 3) == Opt.some(3)
+    assert Seq([1, 2, 3, 4, 5]).find_index(lambda x: x > 10) == Opt.none()

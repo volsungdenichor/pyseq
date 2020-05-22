@@ -3,7 +3,7 @@ import itertools
 import operator
 from collections import deque
 
-from pyseq.functions import identity, negate
+from pyseq.functions import identity, negate, invoke_on_value, get_key
 from pyseq.opt import Opt
 
 
@@ -337,3 +337,6 @@ class Seq:
 
     def find(self, pred):
         return self.drop_until(pred).first()
+
+    def find_index(self, pred):
+        return self.enumerate().find(invoke_on_value(pred)).map(get_key)
