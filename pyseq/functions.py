@@ -68,3 +68,26 @@ def update_dict_value(func):
         return key, func(value)
 
     return result
+
+
+def nested_getter(*keys):
+    def result(item):
+        for key in keys:
+            item = item[key]
+        return item
+
+    return result
+
+
+def getter(path, delimiter='.'):
+    return nested_getter(*path.split(delimiter))
+
+
+def apply(func, *funcs):
+    if funcs:
+        def result(item):
+            return tuple(f(item) for f in (func,) + funcs)
+
+        return result
+    else:
+        return func

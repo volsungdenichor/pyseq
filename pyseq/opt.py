@@ -81,9 +81,7 @@ class Opt:
 
     def flat_map(self, func):
         if self:
-            res = func(self._value)
-            ensure(isinstance(res, Opt), lambda: 'flat_map result Opt expected')
-            return res
+            return Opt(func(self._value))
         else:
             return Opt.none()
 

@@ -310,6 +310,13 @@ class Seq:
             res.setdefault(key_selector(item), []).append(value_selector(item))
         return res
 
+    @as_seq
+    def group_by(self, key_selector=None, value_selector=None, result_selector=None):
+        result_selector = result_selector or identity
+        groups = self.to_multidict(key_selector=key_selector, value_selector=value_selector)
+        for key, values in groups.items():
+            yield key, result_selector(Seq(values))
+
     def reduce(self, func, init):
         return functools.reduce(func, self._iterable, init)
 

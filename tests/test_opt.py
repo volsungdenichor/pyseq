@@ -43,8 +43,6 @@ def test_opt():
     assert Opt.none().filter(lambda x: x > 2) == Opt.none()
     assert Opt.some(4).flat_map(square_root) == Opt.some(2)
     assert Opt.none().flat_map(square_root) == Opt.none()
-    with pytest.raises(RuntimeError, match='Opt expected'):
-        Opt.some(3).flat_map(lambda x: x + 1)
     assert Opt.some(-4).flat_map(square_root) == Opt.none()
     assert Opt.some(2) | Opt.some(4) == Opt.some(2)
     assert Opt.none() | Opt.some(4) == Opt.some(4)
