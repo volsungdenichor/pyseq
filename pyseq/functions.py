@@ -11,8 +11,8 @@ def identity(arg):
 
 
 def negate(func):
-    def result(*args, **kwargs):
-        return not func(*args, **kwargs)
+    def result(arg):
+        return not func(arg)
 
     return result
 
@@ -39,6 +39,23 @@ def invoke_on_value(func):
 
 def unpack(func):
     return lambda arg: func(*arg)
+
+
+def to_unary(func):
+    import inspect
+    from inspect import Parameter
+
+    def is_valid(p):
+        return p.kind in [Parameter.POSITIONAL_OR_KEYWORD] and p.default is p.empty
+
+    try:
+        if sum(1 for p in inspect.signature(func).parameters.values() if is_valid(p)) > 1:
+            return unpack(func)
+        else:
+            return func
+
+    except (TypeError, ValueError):
+        return func
 
 
 class Indexed:
@@ -79,10 +96,6 @@ def nested_getter(*keys):
     return result
 
 
-def getter(path, delimiter='.'):
-    return nested_getter(*path.split(delimiter))
-
-
 def apply(func, *funcs):
     if funcs:
         def result(item):
@@ -91,3 +104,28 @@ def apply(func, *funcs):
         return result
     else:
         return func
+
+
+def getter(*paths, **kwargs):
+    delimiter = kwargs.pop('delimiter', '.')
+
+    def create(path):
+        if isinstance(path, str):
+            return nested_getter(*path.split(delimiter))
+        elif isinstance(path, int):
+            return nested_getter(path)
+        elif isinstance(path, tuple):
+            return nested_getter(*path)
+
+    return apply(*(create(path) for path in paths))
+
+    path = path.replace('[', '.[')
+
+    def convert(chunk):
+        chunk = chunk.strip()
+        if chunk.startswith('[') and chunk.endswith(']'):
+            return int(chunk[1:-1])
+        else:
+            return chunk
+
+    return tuple(convert(chunk) for chunk in path.split('.'))

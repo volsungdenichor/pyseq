@@ -1,5 +1,5 @@
 from pyseq.core import ensure
-from pyseq.functions import negate
+from pyseq.functions import negate, to_unary
 
 
 class OptError(Exception):
@@ -72,6 +72,7 @@ class Opt:
         return self.is_some()
 
     def map(self, func):
+        func = to_unary(func)
         if self:
             res = func(self._value)
             ensure(not isinstance(res, Opt), lambda: 'map: result Opt not expected')
@@ -80,6 +81,7 @@ class Opt:
             return Opt.none()
 
     def flat_map(self, func):
+        func = to_unary(func)
         if self:
             return Opt(func(self._value))
         else:
@@ -98,12 +100,14 @@ class Opt:
         return res
 
     def matches(self, pred):
+        pred = to_unary(pred)
         return self and pred(self._value)
 
     def contains(self, value):
         return self.matches(lambda v: v == value)
 
     def filter(self, pred):
+        pred = to_unary(pred)
         if self.matches(pred):
             return self
         else:
@@ -113,6 +117,7 @@ class Opt:
         return self.filter(pred)
 
     def drop_if(self, pred):
+        pred = to_unary(pred)
         return self.filter(negate(pred))
 
     def or_(self, other):

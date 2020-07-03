@@ -1,3 +1,5 @@
+import operator
+
 from pyseq.functions import identity
 from pyseq.opt import Opt
 from pyseq.seq import Seq
@@ -85,3 +87,10 @@ def test_seq():
     _test_seq(Seq(['A', 'B', 'C']).intersperse(','), ['A', ',', 'B', ',', 'C'])
     assert Seq([1, 2, 3, 4, 5]).find_index(lambda x: x > 3) == Opt.some(3)
     assert Seq([1, 2, 3, 4, 5]).find_index(lambda x: x > 10) == Opt.none()
+    assert Seq([(1, 2), (3, 4)]).map(lambda a, b: a + b).to_list() == [3, 7]
+    assert Seq([(1, 2), (3, 4)]).map(lambda x: x[0] + x[1]).to_list() == [3, 7]
+    assert \
+        Seq([(1, 2), (3, 4), (5, 6), (7, 8)]) \
+            .drop_until(lambda a, b: a == 3) \
+            .drop_if(lambda a, b: b == 8) \
+            .to_dict() == {3: 4, 5: 6}

@@ -3,7 +3,7 @@ import itertools
 import operator
 from collections import deque
 
-from pyseq.functions import identity, negate, invoke_on_value, get_key
+from pyseq.functions import identity, negate, invoke_on_value, get_key, to_unary
 from pyseq.opt import Opt
 
 
@@ -18,7 +18,7 @@ def _adjust_selectors(key_selector, value_selector):
     if key_selector is None and value_selector is None:
         return operator.itemgetter(0), operator.itemgetter(1)
     else:
-        return key_selector or identity, value_selector or identity
+        return to_unary(key_selector) or identity, to_unary(value_selector) or identity
 
 
 def _append(lst, item):
@@ -85,10 +85,12 @@ class Seq:
 
     @as_seq
     def map(self, func):
+        func = to_unary(func)
         return map(func, self._iterable)
 
     @as_seq
     def filter(self, pred):
+        pred = to_unary(pred)
         return filter(pred, self._iterable)
 
     @as_seq
@@ -97,22 +99,27 @@ class Seq:
 
     @as_seq
     def drop_if(self, pred):
+        pred = to_unary(pred)
         return self.filter(negate(pred))
 
     @as_seq
     def take_while(self, pred):
+        pred = to_unary(pred)
         return itertools.takewhile(pred, self._iterable)
 
     @as_seq
     def drop_while(self, pred):
+        pred = to_unary(pred)
         return itertools.dropwhile(pred, self._iterable)
 
     @as_seq
     def take_until(self, pred):
+        pred = to_unary(pred)
         return self.take_while(negate(pred))
 
     @as_seq
     def drop_until(self, pred):
+        pred = to_unary(pred)
         return self.drop_while(negate(pred))
 
     @as_seq
@@ -129,6 +136,7 @@ class Seq:
 
     @as_seq
     def replace_if(self, pred, new_value):
+        pred = to_unary(pred)
         return self.map(lambda item: new_value if pred(item) else item)
 
     @as_seq
@@ -205,6 +213,7 @@ class Seq:
 
     @as_seq
     def filter_map(self, func):
+        func = to_unary(func)
         for item in self._iterable:
             res = func(item)
             assert isinstance(res, Opt)
@@ -242,6 +251,7 @@ class Seq:
         return tuple(Seq(it) for it in itertools.tee(self._iterable, n))
 
     def partition(self, pred):
+        pred = to_unary(pred)
         s1, s2 = self.tee()
         return s1.take_if(pred), s2.drop_if(pred)
 
@@ -272,11 +282,13 @@ class Seq:
         return self.any(lambda item: item == value)
 
     def for_each(self, func):
+        func = to_unary(func)
         for item in self._iterable:
             func(item)
 
     @as_seq
     def inspect(self, func):
+        func = to_unary(func)
         for item in self._iterable:
             func(item)
             yield item
