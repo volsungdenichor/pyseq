@@ -118,14 +118,3 @@ def getter(*paths, **kwargs):
             return nested_getter(*path)
 
     return apply(*(create(path) for path in paths))
-
-    path = path.replace('[', '.[')
-
-    def convert(chunk):
-        chunk = chunk.strip()
-        if chunk.startswith('[') and chunk.endswith(']'):
-            return int(chunk[1:-1])
-        else:
-            return chunk
-
-    return tuple(convert(chunk) for chunk in path.split('.'))

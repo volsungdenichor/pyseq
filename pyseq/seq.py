@@ -71,6 +71,21 @@ class Seq:
 
     @staticmethod
     @as_seq
+    def iterate(init, func):
+        func = to_unary(func)
+        yield init
+        while True:
+            init = func(init)
+            yield init
+
+    @staticmethod
+    @as_seq
+    def iter_with(context_manager):
+        with context_manager as iterable:
+            yield from iterable
+
+    @staticmethod
+    @as_seq
     def as_iterable(obj, base_type=(str, bytes)):
         if obj is None:
             return Seq.empty()
@@ -156,11 +171,13 @@ class Seq:
         return reversed(self._iterable)
 
     @as_seq
-    def sort(self, key=None):
+    def sort(self, key=identity):
+        key = to_unary(key)
         return sorted(self._iterable, key=key)
 
     @as_seq
-    def sort_desc(self, key=None):
+    def sort_desc(self, key=identity):
+        key = to_unary(key)
         return sorted(self._iterable, key=key, reverse=True)
 
     @as_seq
@@ -336,9 +353,11 @@ class Seq:
         return self.reduce(operator.add, init)
 
     def min(self, key=identity):
+        key = to_unary(key)
         return Opt.eval(lambda: min(self._iterable, key=key))
 
     def max(self, key=identity):
+        key = to_unary(key)
         return Opt.eval(lambda: max(self._iterable, key=key))
 
     def first(self):
@@ -358,4 +377,5 @@ class Seq:
         return self.drop_until(pred).first()
 
     def find_index(self, pred):
+        pred = to_unary(pred)
         return self.enumerate().find(invoke_on_value(pred)).map(get_key)
