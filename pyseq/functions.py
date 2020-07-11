@@ -48,6 +48,9 @@ def to_unary(func):
     def is_valid(p):
         return p.kind in [Parameter.POSITIONAL_OR_KEYWORD] and p.default is p.empty
 
+    if func is None:
+        return identity
+
     try:
         if sum(1 for p in inspect.signature(func).parameters.values() if is_valid(p)) > 1:
             return unpack(func)
