@@ -1,89 +1,91 @@
 import re
+from decimal import Decimal
 from math import isclose
 
 
-def as_predicate(func):
-    def wrapper(*args, **kwargs):
-        return Predicate(func(*args, **kwargs))
-
-    return wrapper
+def format(values):
+    return ','.join(map(str, values))
 
 
 class Predicate:
-    def __init__(self, pred):
-        self._pred = pred._pred if isinstance(pred, Predicate) \
-            else pred if callable(pred) \
-            else lambda arg: arg == pred
+    def __init__(self, pred, name=None):
+        if isinstance(pred, Predicate):
+            self._pred = pred._pred
+            self._name = name or pred._name
+        else:
+            if callable(pred):
+                self._pred = pred
+                self._name = name or str(self._pred)
+            else:
+                self._pred = lambda arg: arg == pred
+                self._name = f'equal to {pred}'
 
-    def __call__(self, *args, **kwargs):
-        return self._pred(*args, **kwargs)
+    def __call__(self, arg):
+        return self._pred(arg)
 
-    @as_predicate
     def __and__(self, other):
-        def result(*args, **kwargs):
-            return self(*args, **kwargs) and other(*args, **kwargs)
+        return Predicate(lambda arg: self(arg) and other(arg), f'({self}) and ({other})')
 
-        return result
-
-    @as_predicate
     def __or__(self, other):
-        def result(*args, **kwargs):
-            return self(*args, **kwargs) or other(*args, **kwargs)
+        return Predicate(lambda arg: self(arg) or other(arg), f'({self}) or ({other})')
 
-        return result
-
-    @as_predicate
     def __xor__(self, other):
-        def result(*args, **kwargs):
-            return self(*args, **kwargs) ^ other(*args, **kwargs)
+        return Predicate(lambda arg: self(arg) ^ other(arg), f'({self}) xor ({other})')
 
-        return result
-
-    @as_predicate
     def __invert__(self):
-        def result(*args, **kwargs):
-            return not self(*args, **kwargs)
+        return Predicate(lambda arg: not self(arg), f'not ({self})')
 
-        return result
+    @staticmethod
+    def all(*preds):
+        return Predicate(lambda arg: all(map(lambda p: p(arg), preds)), f'all [{format(preds)}]')
+
+    @staticmethod
+    def any(*preds):
+        return Predicate(lambda arg: any(map(lambda p: p(arg), preds)), f'any [{format(preds)}]')
+
+    @staticmethod
+    def none(*preds):
+        return Predicate(lambda arg: not any(map(lambda p: p(arg), preds)), f'any [{format(preds)}]')
+
+    def alias(self, name):
+        return Predicate(self._pred, name)
 
     def __str__(self):
-        return str(self._pred)
+        return self._name
 
     __repr__ = __str__
 
 
-always = Predicate(lambda *args, **kwargs: True)
-never = ~always
+def as_predicate(func):
+    return Predicate(func, func.__name__)
 
 
-@as_predicate
+always = Predicate(lambda _arg: True, 'always')
+never = always.alias('never')
+
+
 def eq(value):
-    return lambda arg: arg == value
+    return Predicate(lambda arg: arg == value, f'equal to {value}')
 
 
-@as_predicate
 def ne(value):
-    return lambda arg: arg != value
+    return Predicate(lambda arg: arg != value, f'not equal to {value}')
 
 
-@as_predicate
 def lt(value):
-    return lambda arg: arg < value
+    return Predicate(lambda arg: arg < value, f'less than {value}')
 
 
-@as_predicate
 def le(value):
-    return lambda arg: arg <= value
+    return Predicate(lambda arg: arg <= value, f'less than or equal to {value}')
 
 
-@as_predicate
 def gt(value):
-    return lambda arg: arg > value
+    return Predicate(lambda arg: arg > value, f'greater than {value}')
 
 
-@as_predicate
 def ge(value):
-    return lambda arg: arg >= value
+    return Predicate(lambda arg: arg >= value, f'greater than or equal to {value}')
 
 
 equal = eq
@@ -93,99 +95,94 @@ less_equal = le
 greater = gt
 greater_equal = ge
 
+positive = greater(0.0).alias('positive')
+negative = less(0.0).alias('negative')
+non_negative = greater_equal(0.0).alias('non-negative')
+non_positive = less_equal(0.0).alias('non-positive')
+non_zero = not_equal(0.0).alias('non-zero')
 
-@as_predicate
+
 def approx_equal(value, rel_tol=None, abs_tol=None):
     kwargs = {}
     if abs_tol is not None:
         kwargs['abs_tol'] = abs_tol
     if rel_tol is not None:
         kwargs['rel_tol'] = rel_tol
-    return lambda arg: isclose(arg, value, **kwargs)
+    return Predicate(lambda arg: isclose(arg, value, **kwargs), f'approx equal to {value}')
 
 
-@as_predicate
 def between(lo, up):
-    return lambda arg: lo <= arg <= up
+    return Predicate(lambda arg: lo <= arg <= up, f'between {lo} and {up}')
 
 
-@as_predicate
 def divisible_by(d):
-    return lambda arg: arg % d == 0
+    return Predicate(lambda arg: arg % d == 0, f'divisible by {d}')
 
 
-even = divisible_by(2)
-odd = ~even
+even = Predicate(divisible_by(2), 'even')
+odd = (~even).alias('odd')
 
 
-@as_predicate
 def any_of(*args):
-    return lambda arg: arg in args
+    return Predicate(lambda arg: arg in args, f'any of {format(args)}')
 
 
-none = Predicate(lambda arg: arg is None)
-not_none = ~none
+none = Predicate(lambda arg: arg is None, 'none')
+not_none = (~none).alias('not none')
 
 
-@as_predicate
 def has_len(pred):
     pred = Predicate(pred)
-    return lambda arg: pred(len(arg))
+    return Predicate(lambda arg: pred(len(arg)), f'has len {pred}')
 
 
-empty = has_len(equal(0))
-not_empty = ~empty
+empty = Predicate(has_len(equal(0)), 'empty')
+not_empty = (~empty).alias('not empty')
 
-true = Predicate(bool)
-false = ~true
+true = Predicate(bool, 'true')
+false = (~true).alias('false')
 
 
-@as_predicate
 def of_type(*types):
-    return lambda arg: isinstance(arg, tuple(types))
+    names = format(t.__name__ for t in types)
+    return Predicate(lambda arg: isinstance(arg, types), f'of type {names}')
 
 
-@as_predicate
+numeric = of_type(int, float, Decimal).alias('numeric')
+
+
 def has_prefix(prefix):
-    return lambda arg: arg[:len(prefix)] == prefix
+    return Predicate(lambda arg: arg[:len(prefix)] == prefix, f'has prefix {prefix}')
 
 
-@as_predicate
 def has_suffix(suffix):
-    return lambda arg: arg[-len(suffix):] == suffix
+    return Predicate(lambda arg: arg[-len(suffix):] == suffix, f'has suffix {suffix}')
 
 
-@as_predicate
 def has_sub(sub):
-    return lambda arg: any(arg[i:i + len(sub)] == sub for i in range(len(arg)))
+    return Predicate(lambda arg: any(arg[i:i + len(sub)] == sub for i in range(len(arg))), f'has sub {sub}')
 
 
-@as_predicate
 def matches_re(pattern):
     r = re.compile(pattern)
-    return lambda arg: r.match(arg)
+    return Predicate(lambda arg: r.match(arg), f'matches regex {pattern}')
 
 
-@as_predicate
 def contains(value):
-    return lambda arg: value in arg
+    return Predicate(lambda arg: value in arg, f'contains {value}')
 
 
-@as_predicate
 def inside(value):
-    return lambda arg: arg in value
+    return Predicate(lambda arg: arg in value, f'inside {value}')
 
 
-@as_predicate
 def contains_all_of(*values):
-    return lambda arg: all(contains(v)(arg) for v in values)
+    return Predicate.all(*(contains(v) for v in values)).alias(f'contains all of {format(values)}')
 
 
-@as_predicate
 def contains_any_of(*values):
-    return lambda arg: any(contains(v)(arg) for v in values)
+    return Predicate.any(*(contains(v) for v in values)).alias(f'contains any of {format(values)}')
 
 
-@as_predicate
 def contains_none_of(*values):
-    return lambda arg: not any(contains(v)(arg) for v in values)
+    return Predicate.none(*(contains(v) for v in values)).alias(f'contains none of {format(values)}')

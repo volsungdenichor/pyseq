@@ -20,11 +20,3 @@ def merge_dicts(*dicts):
         if dct is not None:
             result.update(dct)
     return result
-
-
-def dict_if(cond, dct):
-    if not cond:
-        return {}
-    if callable(dct):
-        dct = dct()
-    return dct

@@ -1,12 +1,12 @@
 from setuptools import setup
 
 setup(
-    name='pyseq',
-    version='0.0.1',
+    name='km_pyseq',
+    version='0.0.10',
     packages=['pyseq', 'tests'],
-    url='',
+    url='www.g00gle.pl',
     license='',
-    author='',
-    author_email='',
+    author='KM',
+    author_email='k.m@gmail.com',
     description=''
 )

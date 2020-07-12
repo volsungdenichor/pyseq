@@ -3,7 +3,7 @@ import itertools
 import operator
 from collections import deque
 
-from pyseq import ensure
+from pyseq.core import ensure
 from pyseq.functions import identity, negate, invoke_on_value, get_key, to_unary
 from pyseq.opt import Opt
 
