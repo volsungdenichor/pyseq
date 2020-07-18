@@ -59,6 +59,8 @@ class _Var:
                        self.exception_type,
                        stack_level=self.stack_level)
 
+        return self.value
+
 
 class _Wrapper:
     def __init__(self, func, preconditions=None, postconditions=None):
@@ -98,18 +100,19 @@ class _Wrapper:
         bound_params = self.bind_params(*args, **kwargs)
 
         for name, predicates in self._preconditions.items():
-            if name in bound_params:  # if missing, default argument value was used
-                arg_value = bound_params[name]
-                var(arg_value,
+            if name in bound_params:  # if missing, default argument value was used and should not be checked
+                var(bound_params[name],
                     lambda: f'{self.format_func()}: argument "{name}"',
                     exception_type=PreconditionError,
                     stack_level=3).ensure(*predicates)
 
         return_value = self._func(*args, **kwargs)
+
         var(return_value,
             lambda: f'{self.format_func()}: return_value',
             exception_type=PostconditionError,
             stack_level=3).ensure(*self._postconditions)
+
         return return_value
 
 
