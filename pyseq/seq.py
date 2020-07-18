@@ -3,7 +3,6 @@ import itertools
 import operator
 from collections import deque
 
-from pyseq.core import ensure
 from pyseq.functions import identity, negate, invoke_on_value, get_key, to_unary
 from pyseq.opt import Opt
 
@@ -56,7 +55,6 @@ class Seq:
     @as_seq
     def repeat(value, n=None):
         if n is not None:
-            ensure(isinstance(n, int), 'n - int value expected')
             return itertools.repeat(value, n)
         else:
             return itertools.repeat(value)
@@ -141,12 +139,10 @@ class Seq:
 
     @as_seq
     def take(self, n):
-        ensure(isinstance(n, int), 'n - int value expected')
         return itertools.islice(self._iterable, None, n)
 
     @as_seq
     def drop(self, n):
-        ensure(isinstance(n, int), 'n - int value expected')
         return itertools.islice(self._iterable, n, None)
 
     @as_seq
@@ -164,7 +160,6 @@ class Seq:
 
     @as_seq
     def enumerate(self, start=0):
-        ensure(isinstance(start, int), 'start - int value expected')
         return enumerate(self._iterable, start=start)
 
     @as_seq
@@ -272,11 +267,9 @@ class Seq:
 
     @as_seq
     def chunk(self, chunk_size):
-        ensure(isinstance(chunk_size, int), 'chunk_size - int value expected')
         return self._split(lambda item, buf: (buf, [item]) if len(buf) == chunk_size else ([], _append(buf, item)))
 
     def tee(self, n=2):
-        ensure(isinstance(n, int), 'n - int value expected')
         return tuple(Seq(it) for it in itertools.tee(self._iterable, n))
 
     def partition(self, pred):
@@ -379,7 +372,6 @@ class Seq:
         return Opt.eval(lambda: deque(self._iterable, maxlen=1)[0])
 
     def nth(self, index):
-        ensure(isinstance(index, int), 'index - int value expected')
         return self.drop(index).first()
 
     def single(self):

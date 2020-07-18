@@ -21,7 +21,7 @@ class Opt:
 
     @staticmethod
     def some(value):
-        ensure(value is not None, lambda: OptError('value expected, got None'))
+        ensure(value is not None, lambda: OptError('value expected, got None'), stack_level=2)
         return Opt(value)
 
     @staticmethod
@@ -36,14 +36,14 @@ class Opt:
 
     @staticmethod
     def none():
-        return Opt(None)
+        return Opt()
 
     def or_else(self, func):
         if self:
             return self
         else:
             res = func()
-            ensure(isinstance(res, Opt), lambda: 'or_else: result Opt expected')
+            ensure(isinstance(res, Opt), lambda: 'or_else: result Opt expected', stack_level=2)
             return res
 
     def get_or(self, default_value):
@@ -75,7 +75,7 @@ class Opt:
         func = to_unary(func)
         if self:
             res = func(self._value)
-            ensure(not isinstance(res, Opt), lambda: 'map: result Opt not expected')
+            ensure(not isinstance(res, Opt), lambda: 'map: result Opt not expected', stack_level=2)
             return Opt(res)
         else:
             return Opt.none()
@@ -121,11 +121,11 @@ class Opt:
         return self.filter(negate(pred))
 
     def or_(self, other):
-        ensure(isinstance(other, Opt), lambda: 'Opt expected')
+        ensure(isinstance(other, Opt), lambda: 'Opt expected', stack_level=2)
         return self if self else other
 
     def and_(self, other):
-        ensure(isinstance(other, Opt), lambda: 'Opt expected')
+        ensure(isinstance(other, Opt), lambda: 'Opt expected', stack_level=2)
         return self if not self else other
 
     def __or__(self, other):
