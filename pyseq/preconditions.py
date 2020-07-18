@@ -22,8 +22,8 @@ class PostconditionError(RuntimeError):
 
 
 class _Var:
-    def __init__(self, v, name=None, exception_type=RuntimeError, stack_level=2):
-        self.value = v
+    def __init__(self, value, name=None, exception_type=RuntimeError, stack_level=2):
+        self.value = value
         self.name = name
         self.exception_type = exception_type
         self.stack_level = stack_level
@@ -42,22 +42,22 @@ class _Var:
     def is_type(self, v):
         return isinstance(v, type) or (isinstance(v, tuple) and all(map(self.is_type, v)))
 
+    def _test_predicate(self, pred):
+        if self.is_type(pred):
+            return isinstance(self.value, pred)
+        else:
+            return pred(self.value)
+
     def _format_error(self, pred):
         name = self.name() if callable(self.name) else self.name
-        return f'{name}: expected={self._expected(pred)}; actual={self._actual()}'
+        return f'{name}: expected = {self._expected(pred)}; actual = {self._actual()}'
 
     def ensure(self, *predicates):
         for pred in predicates:
-            if self.is_type(pred):
-                ensure(isinstance(self.value, pred),
-                       lambda: self._format_error(pred),
-                       self.exception_type,
-                       stack_level=self.stack_level)
-            elif callable(pred):
-                ensure(pred(self.value),
-                       lambda: self._format_error(pred),
-                       self.exception_type,
-                       stack_level=self.stack_level)
+            ensure(self._test_predicate(pred),
+                   lambda: self._format_error(pred),
+                   self.exception_type,
+                   stack_level=self.stack_level)
 
         return self.value
 
