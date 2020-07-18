@@ -3,40 +3,71 @@ from decimal import Decimal
 from functools import wraps
 from math import isclose
 
-from pyseq.core import get_arg_values
-
 
 def _fmt(values):
     return ','.join(map(str, values))
+
+
+def as_predicate(message):
+    import inspect
+
+    def wrapper(func):
+        @wraps(func)
+        def func_wrapper(*args, **kwargs):
+            if isinstance(func, inspect.Signature):
+                signature = func
+            else:
+                signature = inspect.signature(func)
+
+            bound_args = signature.bind(*args, **kwargs)
+            bound_args.apply_defaults()
+            arg_values = dict(bound_args.arguments)
+
+            return Predicate(pred=func(*args, **kwargs),
+                             name=message.format(**arg_values))
+
+        return func_wrapper
+
+    return wrapper
 
 
 class Predicate:
     def __init__(self, pred, name=None):
         if isinstance(pred, Predicate):
             self._pred = pred._pred
-            self._name = name or pred._name
+            self.__name__ = name or pred.__name__
         else:
             if callable(pred):
                 self._pred = pred
-                self._name = name or str(self._pred)
+                self.__name__ = name or str(self._pred)
+            elif isinstance(pred, type):
+                self._pred = lambda arg: isinstance(arg, pred)
+                self.__name__ = f'of type {pred.__name__}'
+            elif isinstance(pred, tuple) and all(isinstance(p, type) for p in pred):
+                self._pred = lambda arg: isinstance(arg, pred)
+                self.__name__ = f'of type ' + ','.join(p.__name__ for p in pred)
             else:
                 self._pred = lambda arg: arg == pred
-                self._name = f'equal to {pred}'
+                self.__name__ = f'equal to {pred}'
 
     def __call__(self, arg):
         return self._pred(arg)
 
+    @as_predicate('({self}) and ({other})')
     def __and__(self, other):
-        return Predicate(lambda arg: self(arg) and other(arg), f'({self}) and ({other})')
+        return lambda arg: self(arg) and other(arg)
 
+    @as_predicate('({self}) or ({other})')
     def __or__(self, other):
-        return Predicate(lambda arg: self(arg) or other(arg), f'({self}) or ({other})')
+        return lambda arg: self(arg) or other(arg)
 
+    @as_predicate('({self}) xor ({other})')
     def __xor__(self, other):
-        return Predicate(lambda arg: self(arg) ^ other(arg), f'({self}) xor ({other})')
+        return lambda arg: self(arg) ^ other(arg)
 
+    @as_predicate('not ({self})')
     def __invert__(self):
-        return Predicate(lambda arg: not self(arg), f'not ({self})')
+        return lambda arg: not self(arg)
 
     @staticmethod
     def all(*preds):
@@ -54,26 +85,17 @@ class Predicate:
         return Predicate(self._pred, name)
 
     def __str__(self):
-        return self._name
+        return self.__name__
 
     __repr__ = __str__
 
 
-def as_predicate(message):
-    def wrapper(func):
-        @wraps(func)
-        def func_wrapper(*args, **kwargs):
-            arg_values = get_arg_values(func, *args, **kwargs)
-            return Predicate(pred=func(*args, **kwargs),
-                             name=message.format(**arg_values))
-
-        return func_wrapper
-
-    return wrapper
-
-
 always = Predicate(lambda _arg: True, 'always')
 never = always.alias('never')
+
+
+def of_type(*types):
+    return Predicate(types)
 
 
 @as_predicate('equal to {value}')
@@ -113,11 +135,11 @@ less_equal = le
 greater = gt
 greater_equal = ge
 
-positive = greater(0.0).alias('positive')
-negative = less(0.0).alias('negative')
-non_negative = greater_equal(0.0).alias('non-negative')
-non_positive = less_equal(0.0).alias('non-positive')
-non_zero = not_equal(0.0).alias('non-zero')
+positive = greater(0).alias('positive')
+negative = less(0).alias('negative')
+non_negative = greater_equal(0).alias('non-negative')
+non_positive = less_equal(0).alias('non-positive')
+non_zero = not_equal(0).alias('non-zero')
 
 
 @as_predicate('approx equal to {value}')
@@ -162,12 +184,6 @@ not_empty = (~empty).alias('not empty')
 
 true = Predicate(bool, 'true')
 false = (~true).alias('false')
-
-
-def of_type(*types):
-    names = _fmt(t.__name__ for t in types)
-    return Predicate(lambda arg: isinstance(arg, types), f'of type {names}')
-
 
 numeric = of_type(int, float, Decimal).alias('numeric')
 
