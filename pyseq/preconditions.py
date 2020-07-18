@@ -13,10 +13,18 @@ def _extract_predicates(annotation):
         return annotation,
 
 
+class PreconditionError(RuntimeError):
+    pass
+
+
+class PostconditionError(RuntimeError):
+    pass
+
+
 class _Var:
     def __init__(self, v, name=None, exception_type=RuntimeError, stack_level=2):
         self.value = v
-        self.name = name or '?'
+        self.name = name
         self.exception_type = exception_type
         self.stack_level = stack_level
 
@@ -35,7 +43,8 @@ class _Var:
         return isinstance(v, type) or (isinstance(v, tuple) and all(map(self.is_type, v)))
 
     def _format_error(self, pred):
-        return f'{self.name}: expected={self._expected(pred)}; actual={self._actual()}'
+        name = self.name() if callable(self.name) else self.name
+        return f'{name}: expected={self._expected(pred)}; actual={self._actual()}'
 
     def ensure(self, *predicates):
         for pred in predicates:
@@ -91,12 +100,16 @@ class _Wrapper:
         for name, predicates in self._preconditions.items():
             if name in bound_params:  # if missing, default argument value was used
                 arg_value = bound_params[name]
-                message = f'{self.format_func()}: argument "{name}"'
-                var(arg_value, message, stack_level=3).ensure(*predicates)
+                var(arg_value,
+                    lambda: f'{self.format_func()}: argument "{name}"',
+                    exception_type=PreconditionError,
+                    stack_level=3).ensure(*predicates)
 
         return_value = self._func(*args, **kwargs)
-        message = f'{self.format_func()}: return_value'
-        var(return_value, message, stack_level=3).ensure(*self._postconditions)
+        var(return_value,
+            lambda: f'{self.format_func()}: return_value',
+            exception_type=PostconditionError,
+            stack_level=3).ensure(*self._postconditions)
         return return_value
 
 

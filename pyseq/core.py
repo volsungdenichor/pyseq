@@ -21,10 +21,12 @@ def ensure(cond, error=None, error_type=RuntimeError, stack_level=1):
     loc = _format_frame_info(inspect.currentframe(), stack_level=stack_level)
 
     if isinstance(error, Exception):
-        error.args = error.args + (loc,)
-        raise error
-    elif isinstance(error, str):
-        raise error_type(error, loc)
+        exception = error
+    else:
+        exception = error_type(error)
+
+    exception.args += (loc,)
+    raise exception
 
 
 def merge_dicts(*dicts):
