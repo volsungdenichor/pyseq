@@ -109,9 +109,7 @@ def apply(func, *funcs):
         return func
 
 
-def getter(*paths, **kwargs):
-    delimiter = kwargs.pop('delimiter', '.')
-
+def getter(*paths, delimiter='.'):
     def create(path):
         if isinstance(path, str):
             return nested_getter(*path.split(delimiter))

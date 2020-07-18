@@ -2,12 +2,14 @@ import functools
 import itertools
 import operator
 from collections import deque
+from functools import wraps
 
 from pyseq.functions import identity, negate, invoke_on_value, get_key, to_unary
 from pyseq.opt import Opt
 
 
 def as_seq(func):
+    @wraps(func)
     def wrapper(*args, **kwargs):
         return Seq(func(*args, **kwargs))
 
