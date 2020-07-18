@@ -228,3 +228,22 @@ def contains_any_of(*values):
 
 def contains_none_of(*values):
     return Predicate.none(*(contains(v) for v in values)).alias(f'contains none of {_fmt(values)}')
+
+
+class Iterable(Predicate):
+    def __init__(self):
+        super().__init__(lambda arg: hasattr(arg, '__iter__'), 'iterable')
+
+    def __getitem__(self, item):
+        return Predicate(self, f'iterable[{item}]')
+
+
+class Collection(Predicate):
+    def __init__(self):
+        super().__init__(lambda arg: hasattr(arg, '__iter__') and hasattr(arg, '__len__'), 'collection')
+
+    def __getitem__(self, item):
+        return Predicate(self, f'collection[{item}]')
+
+
+iterable = Iterable()
