@@ -131,6 +131,7 @@ def postcondition(*predicates):
 
 
 var = _Var
+value_of = var
 pre = precondition
 post = postcondition
 check_annotation = _Wrapper
