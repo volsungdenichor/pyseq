@@ -95,10 +95,8 @@ class Predicate:
     def alias(self, name):
         return Predicate(self._pred, name)
 
-    def __str__(self):
+    def __repr__(self):
         return self.__name__
-
-    __repr__ = __str__
 
 
 always = Predicate(lambda _arg: True, 'always')

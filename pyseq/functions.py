@@ -61,7 +61,8 @@ def to_unary(func):
         return func
 
 
-class Indexed:
+# noinspection PyPep8Naming
+class indexed:
     def __init__(self, func, start=0):
         self._func = func
         self._index = start
@@ -87,23 +88,23 @@ def update_dict_value(func):
     return result
 
 
-class NestedGetter:
+# noinspection PyPep8Naming
+class nested_getter:
     def __init__(self, *keys):
-        self.keys = keys
-        self.__name__ = '.'.join(map(str, self.keys))
+        self._keys = keys
+        self.__name__ = '.'.join(map(str, self._keys))
 
     def __call__(self, item):
-        for key in self.keys:
+        for key in self._keys:
             item = item[key]
         return item
 
-    def __str__(self):
+    def __repr__(self):
         return self.__name__
 
-    __repr__ = __str__
 
-
-class Apply:
+# noinspection PyPep8Naming
+class apply:
     def __init__(self, func, *funcs):
         if funcs:
             self.all_funcs = (func,) + funcs
@@ -121,19 +122,12 @@ class Apply:
     def __call__(self, item):
         return self._func(item)
 
-    def __str__(self):
+    def __repr__(self):
         return self.__name__
 
-    __repr__ = __str__
 
-
-indexed = Indexed
-nested_getter = NestedGetter
-apply = Apply
-
-
-def split_path(path, delimiter=','):
-    path = path.replace('[', '.[')
+def split_path(path, delimiter='.'):
+    path = path.replace('[', f'{delimiter}[')
 
     def adjust(value):
         if value.startswith('[') and value.endswith(']'):
