@@ -73,15 +73,24 @@ class Predicate:
 
     @staticmethod
     def all(*preds):
-        return Predicate(lambda arg: all(p(arg) for p in preds), f'all [{_fmt(preds)}]')
+        if len(preds) == 1:
+            return preds[0]
+        else:
+            return Predicate(lambda arg: all(p(arg) for p in preds), f'all [{_fmt(preds)}]')
 
     @staticmethod
     def any(*preds):
-        return Predicate(lambda arg: any(p(arg) for p in preds), f'any [{_fmt(preds)}]')
+        if len(preds) == 1:
+            return preds[0]
+        else:
+            return Predicate(lambda arg: any(p(arg) for p in preds), f'any [{_fmt(preds)}]')
 
     @staticmethod
     def none(*preds):
-        return Predicate(lambda arg: not any(p(arg) for p in preds), f'any [{_fmt(preds)}]')
+        if len(preds) == 1:
+            return ~preds[0]
+        else:
+            return Predicate(lambda arg: not any(p(arg) for p in preds), f'none [{_fmt(preds)}]')
 
     def alias(self, name):
         return Predicate(self._pred, name)
