@@ -24,7 +24,7 @@ class PostconditionError(RuntimeError):
 class _Var:
     def __init__(self, value, name=None, exception_type=RuntimeError, stack_level=2):
         self.value = value
-        self.name = name
+        self.name = name or '<unknown>'
         self.exception_type = exception_type
         self.stack_level = stack_level
 

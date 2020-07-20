@@ -3,9 +3,11 @@ from decimal import Decimal
 from functools import wraps
 from math import isclose
 
+from pyseq.functions import getter
+
 
 def _fmt(values):
-    return ','.join(map(str, values))
+    return ';'.join(map(str, values))
 
 
 def as_predicate(message):
@@ -174,9 +176,18 @@ none = Predicate(lambda arg: arg is None, 'none')
 not_none = (~none).alias('not none')
 
 
-def has_len(pred):
+def match(get, pred):
+    get = getter(get)
     pred = Predicate(pred)
-    return Predicate(lambda arg: pred(len(arg)), f'has len {pred}')
+    return Predicate(pred=lambda arg: pred(get(arg)), name=f'{get.__name__}:{pred}')
+
+
+def matches(dct):
+    return Predicate.all(*(match(get, pred) for get, pred in dct.items()))
+
+
+def has_len(pred):
+    return match(len, pred)
 
 
 empty = Predicate(has_len(equal(0)), 'empty')

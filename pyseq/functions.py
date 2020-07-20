@@ -90,19 +90,33 @@ def update_dict_value(func):
     return result
 
 
-def nested_getter(*keys):
-    def result(item):
-        for key in keys:
+class NestedGetter:
+    def __init__(self, *keys):
+        self.keys = keys
+        self.__name__ = '.'.join(map(str, self.keys))
+
+    def __call__(self, item):
+        for key in self.keys:
             item = item[key]
         return item
 
-    return result
+    def __str__(self):
+        return self.__name__
+
+    __repr__ = __str__
+
+
+nested_getter = NestedGetter
 
 
 def apply(func, *funcs):
     if funcs:
+        all_funcs = (func,) + funcs
+
         def result(item):
-            return tuple(f(item) for f in (func,) + funcs)
+            return tuple(f(item) for f in all_funcs)
+
+        result.__name__ = ';'.join(f.__name__ for f in all_funcs)
 
         return result
     else:
@@ -117,5 +131,7 @@ def getter(*paths, delimiter='.'):
             return nested_getter(path)
         elif isinstance(path, tuple):
             return nested_getter(*path)
+        elif callable(path):
+            return path
 
     return apply(*(create(path) for path in paths))
