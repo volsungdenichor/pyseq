@@ -72,9 +72,6 @@ class Indexed:
         return result
 
 
-indexed = Indexed
-
-
 def associate(func):
     def result(item):
         return item, func(item)
@@ -106,27 +103,52 @@ class NestedGetter:
     __repr__ = __str__
 
 
+class Apply:
+    def __init__(self, func, *funcs):
+        if funcs:
+            self.all_funcs = (func,) + funcs
+
+            def result(item):
+                return tuple(f(item) for f in self.all_funcs)
+
+            self._func = result
+        else:
+            self.all_funcs = (func,)
+            self._func = func
+
+        self.__name__ = ';'.join(f.__name__ for f in self.all_funcs)
+
+    def __call__(self, item):
+        return self._func(item)
+
+    def __str__(self):
+        return self.__name__
+
+    __repr__ = __str__
+
+
+indexed = Indexed
 nested_getter = NestedGetter
+apply = Apply
 
 
-def apply(func, *funcs):
-    if funcs:
-        all_funcs = (func,) + funcs
+def split_path(path, delimiter=','):
+    path = path.replace('[', '.[')
 
-        def result(item):
-            return tuple(f(item) for f in all_funcs)
+    def adjust(value):
+        if value.startswith('[') and value.endswith(']'):
+            return int(value[1:-1])
+        else:
+            return value
 
-        result.__name__ = ';'.join(f.__name__ for f in all_funcs)
-
-        return result
-    else:
-        return func
+    chunks = map(adjust, path.split(delimiter))
+    return chunks
 
 
 def getter(*paths, delimiter='.'):
     def create(path):
         if isinstance(path, str):
-            return nested_getter(*path.split(delimiter))
+            return nested_getter(*split_path(path, delimiter))
         elif isinstance(path, int):
             return nested_getter(path)
         elif isinstance(path, tuple):
